@@ -1,4 +1,7 @@
 import java.util.*;
+import java.net.*;
+import java.io.*;
+import javax.net.ssl.*;
 
 public class client{
 
@@ -15,9 +18,12 @@ public class client{
         +"                                oldtrusty server using the indicated certificate";
 
     static List<String> ARGS_PARAMS = new ArrayList<String>();
-
+    static String HOSTNAME = "localhost";
+    static int PORT = 3000;    
+    
     private static void addOrReplaceFile(String filename){
-        System.out.println("Not yet implemented");
+        sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
+        System.out.println("Currently been implemented");
     }
 
     private static void setLengthOfTrust(int length){
