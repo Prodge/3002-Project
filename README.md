@@ -27,15 +27,13 @@ example (list):
   'operation': 'list',
 }
 
-|--------+-----------------+------------------------|
-| Option | Operation value | Additional Keys        |
-|--------+-----------------+------------------------|
-| -a     | "add"           | "filename"             |
-| -f     | "fetch"         | "filename"             |
-| -l     | "list"          |                        |
-| -u     | "cert"          | "filename"             |
-| -v     | "vouch"         | "filename", "certname" |
-|--------+-----------------+------------------------|
+| Option | Operation value | Additional Keys |
+| ------ | --------------- | --------------- |
+| -a | "add" | "filename" 
+| -f | "fetch" | "filename" 
+| -l | "list" |                        
+| -u | "cert" | "filename"
+| -v | "vouch" | "filename", "certname"
 
 
 
