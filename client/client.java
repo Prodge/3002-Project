@@ -2,8 +2,8 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 import javax.net.ssl.*;
-//import org.json.simple.*;
-//import org.json.simple.parser.*;
+import org.json.simple.*;
+import org.json.simple.parser.*;
 
 public class client{
 
@@ -23,9 +23,20 @@ public class client{
     static String HOSTNAME = "188.166.215.84";
     static int PORT = 3000;    
     
+    private static String generateHeader(String operation, HashMap<String, String> additional_keys){
+        JSONObject obj = new JSONObject();
+        obj.put("Operation", operation);
+        for (String key: additional_keys.keySet()){
+            obj.put(key, additional_keys.get(key));
+        }
+        return (obj.toString());
+    }
+
     private static void addOrReplaceFile(String filename){
         sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
-        cdoi.sendMessageToServer(filename);
+        HashMap additional_keys = new HashMap<String, String>();
+        additional_keys.put("filename",filename);
+        cdoi.sendMessageToServer(generateHeader("add", additional_keys));
         cdoi.closeConnection();
     }
 
@@ -34,10 +45,6 @@ public class client{
     }
 
     private static void getExistingFile(String filename){
-        //JSONObject obj = new JSONObject();
-        //obj.put("Hello", "Wimo");
-        //obj.put("Number", new Integer(100));
-        //System.out.println(obj);
         System.err.println("Not yet implemented");
     }
 
