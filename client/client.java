@@ -4,6 +4,8 @@ import java.io.*;
 import javax.net.ssl.*;
 import org.json.simple.*;
 import org.json.simple.parser.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class client{
 
@@ -32,11 +34,23 @@ public class client{
         return (obj.toString());
     }
 
+    private static boolean fileExists(String filename){
+        return (Files.isRegularFile(Paths.get(filename)));
+    }
+
     private static void addOrReplaceFile(String filename){
+        if (!fileExists(filename)) return; 
         sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
         HashMap additional_keys = new HashMap<String, String>();
         additional_keys.put("filename",filename);
         cdoi.sendMessageToServer(generateHeader("add", additional_keys));
+        System.out.println("Waiting for response from server...");
+        String response = "";
+        while ((response=cdoi.receiveMessageFromServer()) != null) System.out.println(response);
+        if (response.equals("ready to recieve")) cdoi.sendFileToServer(filename);
+        System.out.println("Waiting for response from server...");
+        response = "";
+        while ((response=cdoi.receiveMessageFromServer()) != null) System.out.println(response);
         cdoi.closeConnection();
     }
 
@@ -45,7 +59,16 @@ public class client{
     }
 
     private static void getExistingFile(String filename){
-        System.err.println("Not yet implemented");
+        sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
+        HashMap additional_keys = new HashMap<String, String>();
+        additional_keys.put("filename",filename);
+        cdoi.sendMessageToServer(generateHeader("fetch", additional_keys));
+        System.out.println("Waiting for response from server...");
+        String response = "";
+        while ((response=cdoi.receiveMessageFromServer()) != null) System.out.println(response);
+        if (response.equals("file exists and ready to send")) cdoi.receiveFileFromServer();
+        //send success msg...we must discuss a header for this
+        cdoi.closeConnection();
     }
 
     private static void setHostAddress(String host_name, int port){

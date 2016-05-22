@@ -2,6 +2,8 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 import javax.net.ssl.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class sslconnection{
 
@@ -46,6 +48,47 @@ public class sslconnection{
             this.messageOut.flush();
             System.out.println("Message sent!");
         }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public String receiveMessageFromServer(){
+        String msg = "";
+        try{
+            msg = this.messageIn.readLine();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return (msg);
+    }
+    
+
+    public void sendFileToServer(String filename){
+        System.out.println("Starting to send file");
+        BufferedInputStream file_contents = null;
+        try{
+            file_contents = new BufferedInputStream(new FileInputStream(filename));
+            int next = 0;
+            while ((next = file_contents.read()) != -1){
+                this.byteOut.write(next);
+            }
+            this.byteOut.flush();
+            System.out.println("File sent successfully!");
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void receiveFileFromServer(){
+        System.out.println("Starting to recieve file");
+        try{
+            System.out.println("------------Start of file-------------\n");
+            int next = 0;
+            while((next = this.byteIn.read()) != -1){
+                System.out.print((char)next);
+            }
+            System.out.println("\n------------End of file-------------\nFile recieved successfully!");
+        }catch(IOException e){
             e.printStackTrace();
         }
     }
