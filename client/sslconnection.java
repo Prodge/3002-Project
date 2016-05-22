@@ -11,15 +11,15 @@ public class sslconnection{
     private BufferedReader messageIn;
     private PrintWriter messageOut;
 
-    private String trustStorefile = "filename";
-    private String password = "put passwrd here";
+    private String trustStorefile = "clientcert";
+    private String password = "123456";
 
     public sslconnection(String host_name, int port){
         try {
             //set trust store
             System.setProperty("javax.net.ssl.trustStore", this.trustStorefile);
             System.setProperty("javax.net.ssl.trustStorePassword", this.password);
-            System.setProperty("javax.net.debug", "all"); //debugs
+            //System.setProperty("javax.net.debug", "all"); //debugs
 
             //create connection
             SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
