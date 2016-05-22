@@ -1,23 +1,8 @@
-#!/usr/bin/python
-
 import socket
 import ssl
 
-def log(event):
-    print event
-
-def log_in_out(func):
-    def log_wrap(*args, **kwargs):
-        log('Starting {}'.format(func.__name__))
-        output = func(*args, **kwargs)
-        log('Finished {}'.format(func.__name__))
-        return output
-    return log_wrap
-
-HOST = socket.gethostname()
-PORT = 2445
-MAX_CONNECTIONS = 5
-MAX_BUFFER_SIZE = 4096
+from settings import *
+from logger import log_in_out, log
 
 @log_in_out
 def init_socks():
