@@ -43,8 +43,3 @@ def init(cursor):
             '''.format(DB_TABLENAME_FILES, MAX_FILENAME_LENGTH)
         )
 
-@require_db
-def query(cursor, querystring):
-    cursor.execute(querystring)
-
-
