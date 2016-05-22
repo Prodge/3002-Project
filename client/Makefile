@@ -1,9 +1,10 @@
+JFLAGS = -g
 JC = javac
 
 .SUFFIXES: .java .class
 
 .java.class:
-	$(JC) $*.java
+	$(JC) $(JFLAGS) $*.java
 
 CLASSES = \
 	sslconnection.java\

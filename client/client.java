@@ -2,6 +2,8 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 import javax.net.ssl.*;
+//import org.json.simple.*;
+//import org.json.simple.parser.*;
 
 public class client{
 
@@ -18,12 +20,13 @@ public class client{
         +"                                oldtrusty server using the indicated certificate";
 
     static List<String> ARGS_PARAMS = new ArrayList<String>();
-    static String HOSTNAME = "localhost";
+    static String HOSTNAME = "188.166.215.84";
     static int PORT = 3000;    
     
     private static void addOrReplaceFile(String filename){
         sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
-        System.out.println("Currently been implemented");
+        cdoi.sendMessageToServer(filename);
+        cdoi.closeConnection();
     }
 
     private static void setLengthOfTrust(int length){
@@ -31,11 +34,17 @@ public class client{
     }
 
     private static void getExistingFile(String filename){
-        System.out.println("Not yet implemented");
+        //JSONObject obj = new JSONObject();
+        //obj.put("Hello", "Wimo");
+        //obj.put("Number", new Integer(100));
+        //System.out.println(obj);
+        System.err.println("Not yet implemented");
     }
 
     private static void setHostAddress(String host_name, int port){
-        System.out.println("Not yet implemented");
+        HOSTNAME = host_name;
+        PORT = port;
+        System.out.println("Hostname and port set!");
     }
 
     private static void getFileListInfo(){
