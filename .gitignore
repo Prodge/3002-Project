@@ -75,3 +75,4 @@ target/
 hs_err_pid*
 
 *.swp
+*.db

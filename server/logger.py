@@ -1,18 +1,26 @@
+from settings import *
+import datetime
 
 def log(event):
     '''
     Defines the default log behaviour for the server
     '''
-    print event
+    if LOGGING_ENABLED:
+        timestamp = datetime.datetime.strftime(
+            datetime.datetime.now(),
+            '%Y-%m-%d %H:%M:%S:%f'
+        )
+        print '{}  {}'.format(timestamp, event)
 
 def log_in_out(func):
     '''
     Decorator for logging when a function is entered and completed
     '''
     def log_wrap(*args, **kwargs):
-        log('Starting {}'.format(func.__name__))
+        function_identifier = '{}.{}'.format(func.__module__, func.__name__)
+        log('Starting: {}'.format(function_identifier))
         output = func(*args, **kwargs)
-        log('Finished {}'.format(func.__name__))
+        log('Finished: {}'.format(function_identifier))
         return output
     return log_wrap
 
