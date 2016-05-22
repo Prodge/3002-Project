@@ -27,9 +27,9 @@ def main():
     soc = init()
     while True:
         conn, address = soc.accept()
-        print 'got connection from {}'.format(address)
+        log('New connection from {}'.format(address))
         data = conn.recv(MAX_BUFFER_SIZE)
-        print 'Received: {}'.format(data)
+        log('Received: {}'.format(data))
         conn.close()
 
 main()
