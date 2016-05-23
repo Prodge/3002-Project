@@ -56,6 +56,6 @@ def main():
             conn.send('Error: {}\0'.format(e))
 
         soc.shutdown(socket.SHUT_WR)
-        sec.close()
+        soc.close()
 
 main()
