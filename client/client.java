@@ -25,12 +25,16 @@ public class client{
     static String HOSTNAME = "188.166.215.84";
     static int PORT = 3000;    
     
-    private static String generateHeader(String operation, HashMap<String, String> additional_keys){
-        JSONObject obj = new JSONObject();
-        obj.put("Operation", operation);
-        for (String key: additional_keys.keySet()){
-            obj.put(key, additional_keys.get(key));
+    private static String generateHeader(List<String> value_list){
+        HashMap<String, String> dictionary = new HashMap<String, String>();
+        dictionary.put("operation", value_list.get(0));
+        dictionary.put("filename", value_list.get(1));
+        if (value_list.get(0).equals("add") || value_list.get(0).equals("upload")){
+            dictionary.put("file_size", value_list.get(2));
+        }else if (value_list.get(0).equals("vouch")){
+            dictionary.put("certname", value_list.get(2));
         }
+        JSONObject obj = new JSONObject(dictionary);
         return (obj.toString());
     }
 
@@ -41,10 +45,9 @@ public class client{
     private static void addOrReplaceFile(String filename){
         if (!fileExists(filename)) return; 
         sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
-        HashMap additional_keys = new HashMap<String, String>();
-        additional_keys.put("filename",filename);
-        additional_keys.put("file_size",new File(filename).length());
-        cdoi.sendMessageToServer(generateHeader("add", additional_keys));
+        cdoi.sendMessageToServer(generateHeader(
+                    Arrays.asList("add", filename, String.valueOf(new File(filename).length())))
+        );
         System.out.println("Waiting for response from server...");
         String response = cdoi.receiveMessageFromServer();
         System.out.println(response);
@@ -61,12 +64,12 @@ public class client{
 
     private static void getExistingFile(String filename){
         sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
-        HashMap additional_keys = new HashMap<String, String>();
-        additional_keys.put("filename",filename);
-        cdoi.sendMessageToServer(generateHeader("fetch", additional_keys));
+        cdoi.sendMessageToServer(generateHeader(
+                    Arrays.asList("fetch", filename))
+        );
         System.out.println("Waiting for response from server...");
-        String response = "";
-        while ((response=cdoi.receiveMessageFromServer()) != null) System.out.println(response);
+        String response = cdoi.receiveMessageFromServer();
+        System.out.println(response);
         if (response.equals("file exists and ready to send")) cdoi.receiveFileFromServer();
         //send success msg...we must discuss a header for this
         cdoi.closeConnection();
@@ -109,7 +112,7 @@ public class client{
     }
 
     private static boolean parseArguments(String[] args){
-        List string_args = Arrays.asList("-a", "-f", "-n", "-u", "-c");
+        List<String> string_args = Arrays.asList("-a", "-f", "-n", "-u", "-c");
         for (int i=0; i<args.length; i++){
             if (string_args.contains(args[i]) && i!=args.length-1 ){
                 if (args[i].equals("-c")){
