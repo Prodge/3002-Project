@@ -5,6 +5,7 @@ def write_file_from_socket(folder, filename, filesize, conn):
     f = open('{}/{}'.format(folder, filename), 'wb')
     chunk = conn.recv(MAX_BUFFER_SIZE)
     current_bytes_received = MAX_BUFFER_SIZE
+    # Needs refactor
     while (True):
         if filesize > current_bytes_received:
             f.write(chunk)
