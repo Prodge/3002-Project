@@ -47,7 +47,7 @@ public class client{
         System.out.println("Waiting for response from server...");
         String response = "";
         while ((response=cdoi.receiveMessageFromServer()) != null) System.out.println(response);
-        if (response.equals("ready to recieve")) cdoi.sendFileToServer(filename);
+        if (response.equals("ready to receive")) cdoi.sendFileToServer(filename);
         System.out.println("Waiting for response from server...");
         response = "";
         while ((response=cdoi.receiveMessageFromServer()) != null) System.out.println(response);
