@@ -7,11 +7,11 @@ import java.nio.file.Paths;
 
 public class sslconnection{
 
-    private SSLSocket socket;
-    private BufferedInputStream byteIn;
-    private BufferedOutputStream byteOut;
-    private BufferedReader messageIn;
-    private PrintWriter messageOut;
+    private SSLSocket socket = null;
+    private BufferedInputStream byteIn = null;
+    private BufferedOutputStream byteOut = null;
+    private BufferedReader messageIn = null;
+    private BufferedWriter messageOut = null;
 
     private String trustStorefile = "clientcert";
     private String password = "123456";
@@ -33,7 +33,7 @@ public class sslconnection{
 
             //These streams are used for tansferring string messages
             this.messageIn = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-            this.messageOut = new PrintWriter(new OutputStreamWriter(this.socket.getOutputStream()));
+            this.messageOut = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
 
             System.out.println("Connection estabilished!");
         } catch (Exception e) {
@@ -44,7 +44,7 @@ public class sslconnection{
     public void sendMessageToServer(String msg){
         System.out.println("Sending message to server...");
         try{
-            this.messageOut.println(msg);
+            this.messageOut.write(msg);
             this.messageOut.flush();
             System.out.println("Message sent!");
         }catch (Exception e){
@@ -53,28 +53,24 @@ public class sslconnection{
     }
 
     public String receiveMessageFromServer(){
-        String msg = null;
+        String msg = "";
+        int value;
         try{
-            while ((msg = this.messageIn.readLine()) != null) {
-                this.messageOut.write(msg);
-                this.messageOut.flush();
-            }
+            while((value = this.messageIn.read()) != 0) msg += Character.toString((char)value);
         }catch(Exception e){
             e.printStackTrace();
         }
-        return (msg);
+        return msg;
     }
     
 
     public void sendFileToServer(String filename){
         System.out.println("Starting to send file");
         BufferedInputStream file_contents = null;
+        int next;
         try{
             file_contents = new BufferedInputStream(new FileInputStream(filename));
-            int next = 0;
-            while ((next = file_contents.read()) != -1){
-                this.byteOut.write(next);
-            }
+            while((next = file_contents.read()) != -1) this.byteOut.write(next);
             this.byteOut.flush();
             System.out.println("File sent successfully!");
         }catch(IOException e){
