@@ -1,30 +1,37 @@
 from settings import *
 from logger import *
 
-def write_file_from_socket(folder, filename, conn):
+def write_file_from_socket(folder, filename, filesize, conn):
     f = open('{}/{}'.format(folder, filename), 'wb')
     chunk = conn.recv(MAX_BUFFER_SIZE)
+    current_bytes_received = MAX_BUFFER_SIZE
     while (chunk):
-        f.write(chunk)
-        conn.recv(MAX_BUFFER_SIZE)
+        if filesize > current_bytes_received:
+            f.write(chunk)
+        else:
+            f.write(chunk[0: (filesize - current_bytes_received) % MAX_BUFFER_SIZE])
+        chunk = conn.recv(MAX_BUFFER_SIZE)
+        current_bytes_received += MAX_BUFFER_SIZE
     f.close()
+    conn.send('200\0')
 
+def get_data(data, *args):
+    values = []
+    for key in args:
+        value = data.get(key, None)
+        assert value, 'No {} recieved'.format(key)
+        values.append(value)
+    return values
 
 @log_in_out
 def task_add(data, conn):
-    filename = data.get('filename', None)
-    if not filename:
-        raise ValueError('No filename received')
-
+    filename, filesize = get_data(data, *['filename'])
+    conn.send('ready to receive\0')
     if not is_file_in_database(filename):
         add_file_cert_mapping(filename, '')
-
-    conn.send('ready to receive')
-
     if file_exists(filename):
         remove_file(filename)
-
-    write_file_from_socket(FILES_FOLDER, filename, conn)
+    write_file_from_socket(FILES_FOLDER, filename, filesize, conn)
 
 @log_in_out
 def task_list(data, conn):
@@ -36,13 +43,14 @@ def task_list(data, conn):
 
 @log_in_out
 def task_cert(data, conn):
-    filename = data.get('filename', None)
-    if not filename:
-        raise ValueError('No filename received')
-
-    conn.send('ready to receive')
-
+    filename, filesize = get_data(data, *['filename'])
+    conn.send('ready to receive\0')
     if file_exists(filename):
         remove_file(filename)
+    write_file_from_socket(CERTS_FOLDER, filename, filesize, conn)
 
-    write_file_from_socket(CERTS_FOLDER, filename, conn)
+@log_in_out
+def task_vouch(data, conn):
+    filename, certname = get_data(data, *['filename'])
+    add_file_cert_mapping(filename, certname)
+    conn.send('200\0')

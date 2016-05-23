@@ -53,7 +53,7 @@ def main():
             task_func(data, conn)
         except Exception as e:
             log('Eception Occured: {}'.format(e))
-            conn.send('Error: {}'.format(e))
+            conn.send('Error: {}\0'.format(e))
 
         soc.shutdown(socket.SHUT_WR)
         sec.close()
