@@ -1,20 +1,30 @@
+from sys import getsizeof
+
 from settings import *
 from logger import *
 from queries import *
 
+@log_in_out
 def write_file_from_socket(folder, filename, filesize, conn):
     f = open('{}/{}'.format(folder, filename), 'wb')
-    chunk = conn.recv(MAX_BUFFER_SIZE)
-    current_bytes_received = MAX_BUFFER_SIZE
     # Needs refactor
+    current_bytes_received = 0
+    last_bytes_received = 0
     while (True):
+        chunk = conn.recv(MAX_BUFFER_SIZE)
+        current_bytes_received += len(chunk)
         if filesize > current_bytes_received:
             f.write(chunk)
         else:
-            f.write(chunk[0: (filesize - current_bytes_received) % MAX_BUFFER_SIZE])
+            f.write(chunk)
+            # extra_bytes = filesize - last_bytes_received
+            # if extra_bytes == 0:
+                # f.write(chunk)
+            # else:
+                # # This line is wrong as the slice is based on characters not bytes HOWEVER it appears the final packet will always contain the exact number of bytes anyway so it doesn't need to be sliced
+                # f.write(chunk[0: extra_bytes])
             break
-        chunk = conn.recv(MAX_BUFFER_SIZE)
-        current_bytes_received += MAX_BUFFER_SIZE
+        last_bytes_received = current_bytes_received # this also appears unnessesary
     f.close()
     conn.send('200\0')
 
