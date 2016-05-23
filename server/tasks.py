@@ -34,7 +34,7 @@ def get_file_cert_mappings():
     return query('select * from {}'.format(DB_TABLENAME_FILES))
 
 def get_file_cert_mapping(filename):
-    return query('select * from {} where filename="{}"'.format(DB_TABLENAME_FILES, filename))[0]
+    return query('select * from {} where filename="{}"'.format(DB_TABLENAME_FILES, filename))
 
 def file_exists(filename):
     return exists('{}/{}'.format(FILES_FOLDER, filename))
@@ -60,5 +60,8 @@ def task_add(data, conn):
 
 @log_in_out
 def task_list(data, conn):
-    mappings = get_file_cert_mappings()
-    log(mappings)
+    mappings_dict = [
+        {'filename': mapping[0], 'certname': mapping[1]}
+            for mapping in get_file_cert_mappings()
+    ]
+    conn.send(json.dumps(mappings_dict))

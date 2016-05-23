@@ -35,13 +35,14 @@ def main():
 
         data = json.loads(json_data)
         task_func = getattr(tasks, 'task_{}'.format(data.get('Operation')))
-        # task_func = tasks.task_list
+        task_func = tasks.task_list
 
         try:
             task_func(data, conn)
         except Exception as e:
             log('Eception Occured: {}'.format(e))
 
-        conn.close()
+        soc.shutdown(socket.SHUT_WR)
+        sec.close()
 
 main()
