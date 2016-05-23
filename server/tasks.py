@@ -11,10 +11,10 @@ def task_add(data, conn):
         add_file_cert_mapping(filename, '')
 
     conn.send('ready to receive')
-    print 'sent ready'
 
     if file_exists(filename):
         remove_file(filename)
+
     f = open('{}/{}'.format(FILES_FOLDER, filename), 'wb')
     chunk = conn.recv(MAX_BUFFER_SIZE)
     while (chunk):

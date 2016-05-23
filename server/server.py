@@ -19,8 +19,10 @@ def init():
 
     # Folders
     for folder in [CERTS_FOLDER, FILES_FOLDER]:
-        if not exists(folder):
-            log('Creating folder ({})'.format(folder))
+        if exists(folder):
+            log('Folder "{}" exists'.format(folder))
+        else:
+            log('Creating folder "{}"'.format(folder))
             makedirs(folder)
 
     # Sockets
