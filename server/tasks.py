@@ -8,7 +8,7 @@ from queries import *
 def write_file_from_socket(folder, filename, filesize, conn):
     f = open('{}/{}'.format(folder, filename), 'wb')
     current_bytes_received = 0
-    while (filesize != current_bytes_received): # filesize == CBR on final packet
+    while (int(filesize) != current_bytes_received): # filesize == CBR on final packet
         chunk = conn.recv(MAX_BUFFER_SIZE)
         current_bytes_received += len(chunk)
         f.write(chunk)

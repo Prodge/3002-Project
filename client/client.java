@@ -27,7 +27,7 @@ public class client{
     
     private static String generateHeader(List<String> value_list){
         HashMap<String, String> dictionary = new HashMap<String, String>();
-        dictionary.put("operation", value_list.get(0));
+        dictionary.put("Operation", value_list.get(0));
         dictionary.put("filename", value_list.get(1));
         if (value_list.get(0).equals("add") || value_list.get(0).equals("upload")){
             dictionary.put("file_size", value_list.get(2));
