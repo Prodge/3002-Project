@@ -45,12 +45,12 @@ public class client{
         additional_keys.put("filename",filename);
         cdoi.sendMessageToServer(generateHeader("add", additional_keys));
         System.out.println("Waiting for response from server...");
-        String response = "";
-        while ((response=cdoi.receiveMessageFromServer()) != null) System.out.println(response);
+        String response = cdoi.receiveMessageFromServer();
+        System.out.println(response);
         if (response.equals("ready to receive")) cdoi.sendFileToServer(filename);
         System.out.println("Waiting for response from server...");
-        response = "";
-        while ((response=cdoi.receiveMessageFromServer()) != null) System.out.println(response);
+        response = cdoi.receiveMessageFromServer();
+        System.out.println(response);
         cdoi.closeConnection();
     }
 
