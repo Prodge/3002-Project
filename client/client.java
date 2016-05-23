@@ -43,6 +43,7 @@ public class client{
         sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
         HashMap additional_keys = new HashMap<String, String>();
         additional_keys.put("filename",filename);
+        additional_keys.put("file_size",new File(filename).length());
         cdoi.sendMessageToServer(generateHeader("add", additional_keys));
         System.out.println("Waiting for response from server...");
         String response = cdoi.receiveMessageFromServer();

@@ -47,16 +47,14 @@ def task_add(data, conn):
     filename = data.get('filename', None)
     if not filename:
         raise ValueError('No filename recieved')
-
-    conn.send('ready to receive')
+    conn.send('ready to receive\0')
     print 'sent ready'
-
-    # f = open('{}/{}'.format(FILES_FOLDER, filename), 'wb')
-    # chunk = conn.recv(MAX_BUFFER_SIZE)
-    # while (chunk):
-        # f.write(chunk)
-        # conn.recv(MAX_BUFFER_SIZE)
-    # f.close()
+    f = open('{}/{}'.format(FILES_FOLDER, filename), 'wb')
+    chunk = conn.recv(MAX_BUFFER_SIZE)
+    while (chunk):
+        f.write(chunk)
+        chunk = conn.recv(MAX_BUFFER_SIZE)
+    f.close()
 
 @log_in_out
 def task_list(data, conn):
