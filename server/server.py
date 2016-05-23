@@ -1,9 +1,11 @@
 import socket
 import ssl
+import json
 
 from settings import *
 from logger import *
 import database as db
+import tasks
 
 @log_in_out
 def init():
@@ -28,8 +30,18 @@ def main():
     while True:
         conn, address = soc.accept()
         log('New connection from {}'.format(address))
-        data = conn.recv(MAX_BUFFER_SIZE)
-        log('Received: {}'.format(data))
+        json_data = conn.recv(MAX_BUFFER_SIZE)
+        log('Received Instruction: {}'.format(json_data))
+
+        data = json.loads(json_data)
+        task_func = getattr(tasks, 'task_{}'.format(data.get('Operation')))
+        # task_func = tasks.task_list
+
+        try:
+            task_func(data, conn)
+        except Exception as e:
+            log('Eception Occured: {}'.format(e))
+
         conn.close()
 
 main()
