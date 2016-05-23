@@ -55,7 +55,6 @@ def main():
             log('Eception Occured: {}'.format(e))
             conn.send('Error: {}\0'.format(e))
 
-        soc.shutdown(socket.SHUT_WR)
-        soc.close()
+        con.close()
 
 main()
