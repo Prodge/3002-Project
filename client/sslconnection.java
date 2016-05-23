@@ -53,9 +53,12 @@ public class sslconnection{
     }
 
     public String receiveMessageFromServer(){
-        String msg = "";
+        String msg = null;
         try{
-            msg = this.messageIn.readLine();
+            while ((msg = this.messageIn.readLine()) != null) {
+                this.messageIn.write(msg);
+                this.messageIn.flush();
+            }
         }catch(Exception e){
             e.printStackTrace();
         }
