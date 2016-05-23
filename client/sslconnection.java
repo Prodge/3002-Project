@@ -56,8 +56,8 @@ public class sslconnection{
         String msg = null;
         try{
             while ((msg = this.messageIn.readLine()) != null) {
-                this.messageIn.write(msg);
-                this.messageIn.flush();
+                this.messageOut.write(msg);
+                this.messageOut.flush();
             }
         }catch(Exception e){
             e.printStackTrace();
