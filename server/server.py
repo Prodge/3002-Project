@@ -1,6 +1,8 @@
 import socket
 import ssl
 import json
+from os.path import exists
+from os import makedirs
 
 from settings import *
 from logger import *
@@ -12,7 +14,18 @@ def init():
     '''
     Initialises the server sockets and database
     '''
+    # DB
     db.init()
+
+    # Folders
+    for folder in [CERTS_FOLDER, FILES_FOLDER]:
+        if exists(folder):
+            log('Folder "{}" exists'.format(folder))
+        else:
+            log('Creating folder "{}"'.format(folder))
+            makedirs(folder)
+
+    # Sockets
     soc = socket.socket()
     soc.bind(('', PORT))
     soc.listen(MAX_CONNECTIONS)
@@ -35,12 +48,13 @@ def main():
 
         data = json.loads(json_data)
         task_func = getattr(tasks, 'task_{}'.format(data.get('Operation')))
-        # task_func = tasks.task_list
 
         try:
             task_func(data, conn)
         except Exception as e:
+            raise e
             log('Eception Occured: {}'.format(e))
+            conn.send('Error: {}\0'.format(e))
 
         conn.close()
 

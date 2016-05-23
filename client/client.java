@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 
 public class client{
 
-    static final String USAGE_DOC = 
+    static final String USAGE_DOC =
         "Usage: java client [-arg PARAM(S) -arg PARAM(S) ...]\n"
         +"    -a FILENAME                 add or replace a file on the oldtrusty server\n\n"
         +"    -c NUMBER                   provide the required circumference (length) of a circle of trust\n\n"
@@ -43,7 +43,7 @@ public class client{
     }
 
     private static void addOrReplaceFile(String filename){
-        if (!fileExists(filename)) return; 
+        if (!fileExists(filename)) return;
         sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
         cdoi.sendMessageToServer(generateHeader(
                     Arrays.asList("add", filename, String.valueOf(new File(filename).length())))
@@ -88,7 +88,7 @@ public class client{
     private static void setTrustName(String name){
         System.out.println("Not yet implemented");
     }
-    
+
     private static void uploadCertificate(String certificate){
         System.out.println("Not yet implemented");
     }
@@ -103,7 +103,7 @@ public class client{
         } catch(NumberFormatException e) {
             return false;
         }
-        return true;        
+        return true;
     }
 
     private static boolean validString(String str){
@@ -143,7 +143,7 @@ public class client{
         if (!parseArguments(args)){
             System.out.println("Invalid argument. PLEASE CHECK USAGE BELOW...\n" + USAGE_DOC);
             System.exit(0);
-        }        
+        }
         String[] set_args = new String[] {"-c","-h","-n"};
         for (String arg : set_args){
             int index = ARGS_PARAMS.indexOf(arg);

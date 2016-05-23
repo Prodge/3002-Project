@@ -49,4 +49,4 @@ def query(cursor, query_string):
     Executes a query on the database and returns the results
     '''
     cursor.execute(query_string)
-    return cursor.fetchone()
+    return cursor.fetchall()
