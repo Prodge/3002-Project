@@ -3,7 +3,7 @@ import socket
 HOST = socket.gethostname()
 PORT = 2445
 MAX_CONNECTIONS = 5
-MAX_BUFFER_SIZE = 4096
+MAX_BUFFER_SIZE = 1024
 
 CERT_FILE = './cert.pem'
 KEY_FILE = CERT_FILE
@@ -14,3 +14,6 @@ DB_TABLENAME_FILES = 'file_cert_map'
 MAX_FILENAME_LENGTH = 200
 
 LOGGING_ENABLED = True
+
+FILES_FOLDER = 'files'
+CERTS_FOLDER = 'certs'
