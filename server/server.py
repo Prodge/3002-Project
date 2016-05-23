@@ -2,7 +2,7 @@ import socket
 import ssl
 import json
 from os.path import exists
-from os import makedir
+from os import makedirs
 
 from settings import *
 from logger import *
@@ -21,7 +21,7 @@ def init():
     for folder in [CERTS_FOLDER, FILES_FOLDER]:
         if not exists(folder):
             log('Creating folder ({})'.format(folder))
-            makedir(folder)
+            makedirs(folder)
 
     # Sockets
     soc = socket.socket()
