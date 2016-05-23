@@ -46,7 +46,6 @@ def main():
 
         data = json.loads(json_data)
         task_func = getattr(tasks, 'task_{}'.format(data.get('Operation')))
-        task_func = tasks.task_list
 
         try:
             task_func(data, conn)
