@@ -7,24 +7,11 @@ from queries import *
 @log_in_out
 def write_file_from_socket(folder, filename, filesize, conn):
     f = open('{}/{}'.format(folder, filename), 'wb')
-    # Needs refactor
     current_bytes_received = 0
-    last_bytes_received = 0
-    while (True):
+    while (filesize != current_bytes_received): # filesize == CBR on final packet
         chunk = conn.recv(MAX_BUFFER_SIZE)
         current_bytes_received += len(chunk)
-        if filesize > current_bytes_received:
-            f.write(chunk)
-        else:
-            f.write(chunk)
-            # extra_bytes = filesize - last_bytes_received
-            # if extra_bytes == 0:
-                # f.write(chunk)
-            # else:
-                # # This line is wrong as the slice is based on characters not bytes HOWEVER it appears the final packet will always contain the exact number of bytes anyway so it doesn't need to be sliced
-                # f.write(chunk[0: extra_bytes])
-            break
-        last_bytes_received = current_bytes_received # this also appears unnessesary
+        f.write(chunk)
     f.close()
     conn.send('200\0')
 
