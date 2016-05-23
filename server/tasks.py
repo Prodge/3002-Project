@@ -1,7 +1,9 @@
+from os.path import exists
+from os import remove, makedirs
+
 from settings import *
 from logger import *
 from database import query
-from os.path import exists
 
 def is_file_in_database(filename):
     res = query(
@@ -39,8 +41,14 @@ def get_file_cert_mapping(filename):
 def file_exists(filename):
     return exists('{}/{}'.format(FILES_FOLDER, filename))
 
-def cert_exists(filename):
-    return exists('{}/{}'.format(CERTS_FOLDER, filename))
+def cert_exists(certname):
+    return exists('{}/{}'.format(CERTS_FOLDER, certname))
+
+def remove_file(filename):
+    remove('{}/{}'.format(FILES_FOLDER, filename))
+
+def remove_cert(filename):
+    remove('{}/{}'.format(CERTS_FOLDER, certname))
 
 @log_in_out
 def task_add(data, conn):
@@ -48,15 +56,20 @@ def task_add(data, conn):
     if not filename:
         raise ValueError('No filename recieved')
 
+    if not is_file_in_database(filename):
+        add_file_cert_mapping(filename, '')
+
     conn.send('ready to receive')
     print 'sent ready'
 
-    # f = open('{}/{}'.format(FILES_FOLDER, filename), 'wb')
-    # chunk = conn.recv(MAX_BUFFER_SIZE)
-    # while (chunk):
-        # f.write(chunk)
-        # conn.recv(MAX_BUFFER_SIZE)
-    # f.close()
+    if file_exists(filename):
+        remove_file(filename)
+    f = open('{}/{}'.format(FILES_FOLDER, filename), 'wb')
+    chunk = conn.recv(MAX_BUFFER_SIZE)
+    while (chunk):
+        f.write(chunk)
+        conn.recv(MAX_BUFFER_SIZE)
+    f.close()
 
 @log_in_out
 def task_list(data, conn):
