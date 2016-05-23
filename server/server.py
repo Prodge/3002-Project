@@ -1,6 +1,8 @@
 import socket
 import ssl
 import json
+from os.path import exists
+from os import makedir
 
 from settings import *
 from logger import *
@@ -12,7 +14,15 @@ def init():
     '''
     Initialises the server sockets and database
     '''
+    # DB
     db.init()
+
+    # Folders
+    for folder in [CERTS_FOLDER, FILES_FOLDER]:
+        if not exists(folder):
+            makedir(folder)
+
+    # Sockets
     soc = socket.socket()
     soc.bind(('', PORT))
     soc.listen(MAX_CONNECTIONS)
