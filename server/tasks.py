@@ -27,7 +27,7 @@ def get_data(data, *args):
 
 @log_in_out
 def task_add(data, conn):
-    filename, filesize = get_data(data, *['filename'])
+    filename, filesize = get_data(data, *['filename', 'file_size'])
     conn.send('ready to receive\0')
     if not is_file_in_database(filename):
         add_file_cert_mapping(filename, '')
@@ -45,7 +45,7 @@ def task_list(data, conn):
 
 @log_in_out
 def task_cert(data, conn):
-    filename, filesize = get_data(data, *['filename'])
+    filename, filesize = get_data(data, *['filename', 'file_size'])
     conn.send('ready to receive\0')
     if file_exists(filename):
         remove_file(filename)
@@ -53,6 +53,6 @@ def task_cert(data, conn):
 
 @log_in_out
 def task_vouch(data, conn):
-    filename, certname = get_data(data, *['filename'])
+    filename, certname = get_data(data, *['filename', 'certname'])
     add_file_cert_mapping(filename, certname)
     conn.send('200\0')
