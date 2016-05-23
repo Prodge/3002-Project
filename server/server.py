@@ -55,6 +55,6 @@ def main():
             log('Eception Occured: {}'.format(e))
             conn.send('Error: {}\0'.format(e))
 
-        con.close()
+        conn.close()
 
 main()
