@@ -1,5 +1,6 @@
 from settings import *
 from logger import *
+from queries import *
 
 def write_file_from_socket(folder, filename, filesize, conn):
     f = open('{}/{}'.format(folder, filename), 'wb')
