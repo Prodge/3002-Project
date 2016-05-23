@@ -1,6 +1,7 @@
+import sqlite3
+
 from settings import *
 from logger import *
-import sqlite3
 
 def connect():
     return sqlite3.connect(DB_FILENAME)
@@ -42,4 +43,10 @@ def init(cursor):
             )
             '''.format(DB_TABLENAME_FILES, MAX_FILENAME_LENGTH)
         )
-
+@require_db
+def query(cursor, query_string):
+    '''
+    Executes a query on the database and returns the results
+    '''
+    cursor.execute(query_string)
+    return cursor.fetchone()
