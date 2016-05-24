@@ -14,7 +14,6 @@ def write_file_from_socket(folder, filename, filesize, conn):
         current_bytes_received += len(chunk)
         f.write(chunk)
     f.close()
-    send_msg(conn, 200, 'ok')
 
 def get_data(data, *args):
     values = []
@@ -28,7 +27,7 @@ def send_struct(conn, dict):
     conn.send(json.dumps(dict) + '\0')
 
 def send_msg(conn, status_code, msg):
-    send_struct(
+    send_struct(conn,
         {
             'status_code': status_code,
             'msg': msg,
@@ -47,7 +46,7 @@ def task_add(data, conn):
 
 @log_in_out
 def task_list(data, conn):
-    send_struct(
+    send_struct(conn,
         [
             {'filename': mapping[0], 'certname': mapping[1]}
                 for mapping in get_file_cert_mappings()
@@ -76,11 +75,12 @@ def task_fetch(data, conn):
     assert file_exists(filename), "File does not exist"
 
     filesize = getsize('{}/{}'.format(FILES_FOLDER, filename))
-    send_struct({'status_code': 200, 'file_size': filesize})
+    send_struct(conn,{'status_code': 200, 'file_size': filesize})
 
     chunk = True
     f = open('{}/{}'.format(FILES_FOLDER, filename), 'rb')
     while chunk:
         chunk = f.read(MAX_BUFFER_SIZE)
+        if (len(chunk)==0): break
         conn.send(chunk)
     f.close()
