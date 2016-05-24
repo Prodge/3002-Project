@@ -4,6 +4,7 @@ import json
 from settings import *
 from logger import *
 from queries import *
+from cert import *
 
 @log_in_out
 def write_file_from_socket(folder, filename, filesize, conn):
@@ -71,8 +72,11 @@ def task_vouch(data, conn):
 
 @log_in_out
 def task_fetch(data, conn):
-    filename, = get_data(data, *['filename'])
+    filename, cot_size, cot_name = get_data(data, *['filename', 'cot_size', 'cot_name'])
     assert file_exists(filename), "File does not exist"
+
+    if cot_size:
+        get_all_cots(filename)
 
     filesize = getsize('{}/{}'.format(FILES_FOLDER, filename))
     send_struct(conn,{'status_code': 200, 'file_size': filesize})

@@ -39,7 +39,10 @@ def get_file_cert_mappings():
     return query('select * from {}'.format(DB_TABLENAME_FILES))
 
 def get_file_cert_mapping(filename):
-    return query('select * from {} where filename="{}"'.format(DB_TABLENAME_FILES, filename))
+    return query('select * from {} where filename="{}"'.format(DB_TABLENAME_FILES, filename))[0]
+
+def get_linked_cert(filename):
+    return get_file_cert_mapping(filename)[1]
 
 '''
     File Operations
@@ -56,38 +59,3 @@ def remove_file(filename):
 
 def remove_cert(filename):
     remove('{}/{}'.format(CERTS_FOLDER, certname))
-
-'''
-    Certificate Operations
-'''
-def load_cert(certname):
-    file_location = '{}/{}'.format(CERTS_FOLDER, certname)
-    return crypto.load_certificate(crypto.FILETYPE_PEM, file(file_location).read())
-
-def get_cert_subject(certname):
-    return load_cert(certname).get_subject().get_components()
-
-def get_cert_issuer(certname):
-    return load_cert(certname).get_issuer().get_components()
-
-def get_cert_map():
-    return [
-        {
-            'certname': certname,
-            'subject': get_cert_subject(certname),
-            'issuer': get_cert_issuer(certname),
-        }
-            for certname in os.listdir(CERTS_FOLDER)
-    ]
-
-def get_cert_subject_name(cert_subject):
-    '''
-    Returns the CN field of a cert
-    Returns false if the cert does not have a common name field
-    '''
-    names = [field[1] for field in cert_subject if field[0] == 'CN']
-    if not len(names):
-        return False
-    else:
-        assert (len(names) == 1), 'Invalid certificate {}'.format(certname)
-        return name[0]
