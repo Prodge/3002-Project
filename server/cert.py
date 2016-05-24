@@ -21,7 +21,7 @@ def get_cert_subject_name(cert_subject):
         return False
     else:
         assert (len(names) == 1), 'Invalid certificate {}'.format(certname)
-        return name[0]
+        return names[0]
 
 def get_cert_map():
     '''
