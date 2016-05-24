@@ -1,62 +1,56 @@
+from sys import getsizeof
+
 from settings import *
 from logger import *
-from database import query
-from os.path import exists
+from queries import *
 
-def is_file_in_database(filename):
-    res = query(
-        '''
-        select count(*)
-        from {}
-        where filename = "{}"
-        '''.format(DB_TABLENAME_FILES, filename)
-    )
-    return res[0] != 0
+@log_in_out
+def write_file_from_socket(folder, filename, filesize, conn):
+    f = open('{}/{}'.format(folder, filename), 'wb')
+    current_bytes_received = 0
+    while (filesize != current_bytes_received): # filesize == CBR on final packet
+        chunk = conn.recv(MAX_BUFFER_SIZE)
+        current_bytes_received += len(chunk)
+        f.write(chunk)
+    f.close()
+    conn.send('200\0')
 
-def add_file_cert_mapping(filename, certname):
-    query(
-        '''
-        insert into {}
-        values ("{}", "{}")
-        '''.format(DB_TABLENAME_FILES, filename, certname)
-    )
-
-def update_file_cert_mapping(filename, new_certname):
-    query(
-        '''
-        update {}
-        set certname = "{}"
-        where filename = "{}"
-        '''.format(DB_TABLENAME_FILES, new_certname, filename)
-    )
-
-def get_file_cert_mappings():
-    return query('select * from {}'.format(DB_TABLENAME_FILES))
-
-def get_file_cert_mapping(filename):
-    return query('select * from {} where filename="{}"'.format(DB_TABLENAME_FILES, filename))[0]
-
-def file_exists(filename):
-    return exists('{}/{}'.format(FILES_FOLDER, filename))
-
-def cert_exists(filename):
-    return exists('{}/{}'.format(CERTS_FOLDER, filename))
+def get_data(data, *args):
+    values = []
+    for key in args:
+        value = data.get(key, None)
+        assert value, 'No {} recieved'.format(key)
+        values.append(value)
+    return values
 
 @log_in_out
 def task_add(data, conn):
-    filename = data.get('filename', None)
-    if not filename:
-        raise ValueError('No filename recieved')
+    filename, filesize = get_data(data, *['filename', 'file_size'])
     conn.send('ready to receive\0')
-    print 'sent ready'
-    f = open('{}/{}'.format(FILES_FOLDER, filename), 'wb')
-    chunk = conn.recv(MAX_BUFFER_SIZE)
-    while (chunk):
-        f.write(chunk)
-        chunk = conn.recv(MAX_BUFFER_SIZE)
-    f.close()
+    if not is_file_in_database(filename):
+        add_file_cert_mapping(filename, '')
+    if file_exists(filename):
+        remove_file(filename)
+    write_file_from_socket(FILES_FOLDER, filename, filesize, conn)
 
 @log_in_out
 def task_list(data, conn):
-    mappings = get_file_cert_mappings()
-    log(mappings)
+    mappings_dict = [
+        {'filename': mapping[0], 'certname': mapping[1]}
+            for mapping in get_file_cert_mappings()
+    ]
+    conn.send(json.dumps(mappings_dict))
+
+@log_in_out
+def task_cert(data, conn):
+    filename, filesize = get_data(data, *['filename', 'file_size'])
+    conn.send('ready to receive\0')
+    if file_exists(filename):
+        remove_file(filename)
+    write_file_from_socket(CERTS_FOLDER, filename, filesize, conn)
+
+@log_in_out
+def task_vouch(data, conn):
+    filename, certname = get_data(data, *['filename', 'certname'])
+    add_file_cert_mapping(filename, certname)
+    conn.send('200\0')

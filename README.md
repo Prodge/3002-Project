@@ -29,10 +29,10 @@ example (list):
 
 | Option | Operation value | Additional Keys |
 | ------ | --------------- | --------------- |
-| -a | "add" | "filename", "filesize"
+| -a | "add" | "filename", "file_size"
 | -f | "fetch" | "filename"
-| -l | "list" |                        
-| -u | "cert" | "filename", "filesize"
+| -l | "list" |
+| -u | "cert" | "filename", "file_size"
 | -v | "vouch" | "filename", "certname"
 
 

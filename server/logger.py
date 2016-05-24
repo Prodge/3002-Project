@@ -10,7 +10,7 @@ def log(event):
             datetime.datetime.now(),
             '%Y-%m-%d %H:%M:%S:%f'
         )
-        print '{}  {}'.format(timestamp, event)
+        print '[{}]  {}'.format(timestamp, event)
 
 def log_in_out(func):
     '''
