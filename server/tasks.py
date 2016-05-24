@@ -65,6 +65,8 @@ def task_cert(data, conn):
 @log_in_out
 def task_vouch(data, conn):
     filename, certname = get_data(data, *['filename', 'certname'])
+    assert file_exists(filename), "File does not exist"
+    assert cert_exists(certname), "Certificate does not exist"
     add_file_cert_mapping(filename, certname)
     send_msg(conn, 200, 'ok')
 
