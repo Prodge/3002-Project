@@ -52,7 +52,6 @@ def main():
         try:
             task_func(data, conn)
         except Exception as e:
-            raise e
             log('Eception Occured: {}'.format(e))
             tasks.send_msg(conn, 500, e)
 
