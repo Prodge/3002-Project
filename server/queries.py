@@ -1,5 +1,5 @@
 from os.path import exists
-from os import remove, makedirs
+from os import remove, makedirs, listdir
 from OpenSSL import crypto
 
 from settings import *
@@ -45,6 +45,7 @@ def get_file_cert_mapping(filename):
     File Operations
 '''
 def file_exists(filename):
+    assert cert_exists(certname), "Certificate does not exist"
     return exists('{}/{}'.format(FILES_FOLDER, filename))
 
 def cert_exists(certname):
@@ -68,3 +69,25 @@ def get_cert_subject(certname):
 
 def get_cert_issuer(certname):
     return load_cert(certname).get_issuer().get_components()
+
+def get_cert_map():
+    return [
+        {
+            'certname': certname,
+            'subject': get_cert_subject(certname),
+            'issuer': get_cert_issuer(certname),
+        }
+            for certname in os.listdir(CERTS_FOLDER)
+    ]
+
+def get_cert_subject_name(cert_subject):
+    '''
+    Returns the CN field of a cert
+    Returns false if the cert does not have a common name field
+    '''
+    names = [field[1] for field in cert_subject if field[0] == 'CN']
+    if not len(names):
+        return False
+    else:
+        assert (len(names) == 1), 'Invalid certificate {}'.format(certname)
+        return name[0]
