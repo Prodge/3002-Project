@@ -1,3 +1,5 @@
+from os import listdir
+
 from settings import *
 from queries import *
 
@@ -34,7 +36,7 @@ def get_cert_map():
             'issuer': get_cert_issuer(certname),
             'common_name': get_cert_sobject_name(get_cert_subject(certname)),
         }
-            for certname in os.listdir(CERTS_FOLDER)
+            for certname in listdir(CERTS_FOLDER)
     ]))
 
 
