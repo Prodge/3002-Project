@@ -15,7 +15,7 @@ def is_file_in_database(filename):
         where filename = "{}"
         '''.format(DB_TABLENAME_FILES, filename)
     )
-    return res[0] != 0
+    return res[0][0] != 0
 
 def add_file_cert_mapping(filename, certname):
     query(

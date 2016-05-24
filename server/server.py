@@ -54,7 +54,7 @@ def main():
         except Exception as e:
             raise e
             log('Eception Occured: {}'.format(e))
-            conn.send('Error: {}\0'.format(e))
+            tasks.send_msg(conn, 500, e)
 
         conn.close()
 
