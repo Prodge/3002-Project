@@ -74,7 +74,7 @@ def get_all_cots(filename):
                 # Found a COT!
                 cots.append(path)
             elif next_cert not in path:
-                # Create two new paths, marking the old path as finished
+                # Create a new path for further exploration
                 paths.append(path + [next_cert])
         paths.pop(0)
         expand_paths(paths, cots, start_cert)
