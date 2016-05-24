@@ -34,7 +34,7 @@ example (list):
 | -l | "list" |
 | -u | "cert" | "filename", "file_size"
 | -v | "vouch" | "filename", "certname"
-- _Italics_ indicate the key is optional
+- _Italics/bold_ indicate the key is optional
 
 ## Circle of trust spec
 - If a COT size is specified, can't fetch a file unless it is of that COT
