@@ -34,7 +34,7 @@ def get_cert_map():
             'certname': certname,
             'subject': get_cert_subject(certname),
             'issuer': get_cert_issuer(certname),
-            'common_name': get_cert_sobject_name(get_cert_subject(certname)),
+            'common_name': get_cert_subject_name(get_cert_subject(certname)),
         }
             for certname in listdir(CERTS_FOLDER)
     ]))
