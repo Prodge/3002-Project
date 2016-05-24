@@ -1,5 +1,6 @@
 from os.path import exists
 from os import remove, makedirs
+from OpenSSL import crypto
 
 from settings import *
 from database import query
@@ -54,3 +55,16 @@ def remove_file(filename):
 
 def remove_cert(filename):
     remove('{}/{}'.format(CERTS_FOLDER, certname))
+
+'''
+    Certificate Operations
+'''
+def load_cert(certname):
+    file_location = '{}/{}'.format(CERTS_FOLDER, certname)
+    return crypto.load_certificate(crypto.FILETYPE_PEM, file(file_location).read())
+
+def get_cert_subject(certname):
+    return load_cert(certname).get_subject().get_components()
+
+def get_cert_issuer(certname):
+    return load_cert(certname).get_issuer().get_components()
