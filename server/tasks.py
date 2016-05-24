@@ -40,7 +40,7 @@ def task_list(data, conn):
         {'filename': mapping[0], 'certname': mapping[1]}
             for mapping in get_file_cert_mappings()
     ]
-    conn.send(json.dumps(mappings_dict))
+    conn.send(json.dumps(mappings_dict) + '\0')
 
 @log_in_out
 def task_cert(data, conn):
