@@ -80,3 +80,4 @@ def task_fetch(data, conn):
     while chunk:
         chunk = f.read(MAX_BUFFER_SIZE)
         conn.send(chunk)
+    f.close()
