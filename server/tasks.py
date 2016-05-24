@@ -65,7 +65,10 @@ def task_cert(data, conn):
 @log_in_out
 def task_vouch(data, conn):
     filename, certname = get_data(data, *['filename', 'certname'])
-    add_file_cert_mapping(filename, certname)
+    if is_file_in_database(filename):
+        update_file_cert_mapping(filename, certname)
+    else:
+        add_file_cert_mapping(filename, certname)
     send_msg(conn, 200, 'ok')
 
 @log_in_out
