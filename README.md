@@ -30,11 +30,11 @@ example (list):
 | Option | Operation value | Additional Keys |
 | ------ | --------------- | --------------- |
 | -a | "add" | "filename", "file_size"
-| -f | "fetch" | "filename", "cot_size"*, "cot_name"*
+| -f | "fetch" | "filename", _"cot_size"_, _"cot_name"_
 | -l | "list" |
 | -u | "cert" | "filename", "file_size"
 | -v | "vouch" | "filename", "certname"
-* Indicates the key is optional
+- _Italics_ indicate the key is optional
 
 ## Circle of trust spec
 - If a COT size is specified, can't fetch a file unless it is of that COT
