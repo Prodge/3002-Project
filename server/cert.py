@@ -53,9 +53,9 @@ def get_all_cots(filename):
     Each cert in each list is represented by a dict mapping aquired from get_cert_map().
     Returns false if there are no COT's
     '''
-    certname = get_linked_cert(filename)
+    certnames = get_linked_certs(filename)
     cert_map = get_cert_map()
-    start_cert = filter(lambda c: c['certname'] == certname, cert_map)[0]
+    start_certs = filter(lambda c: c['certname'] in certnames, cert_map)[0]
 
     def expand_paths(paths, cots, start_cert):
         '''
@@ -79,7 +79,11 @@ def get_all_cots(filename):
         paths.pop(0)
         expand_paths(paths, cots, start_cert)
 
-    cots = expand_paths([[start_cert]], [], start_cert)
+    cots = []
+    for start_cert in start_certs:
+        cots += expand_paths([[start_cert]], [], start_cert)
+
+    return cots
 
 
 def get_largest_cot(filename):
