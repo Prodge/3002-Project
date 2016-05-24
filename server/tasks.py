@@ -73,11 +73,17 @@ def task_vouch(data, conn):
 
 @log_in_out
 def task_fetch(data, conn):
-    filename, cot_size, cot_name = get_data(data, *['filename', 'cot_size', 'cot_name'])
+    filename = get_data(data, *['filename'])
+    cot_size = data.get('cot_size', None)
+    cot_name = data.get('cot_name', None)
     assert file_exists(filename), "File does not exist"
 
+    cots = get_all_cots(filename)
     if cot_size:
-        get_all_cots(filename)
+        cots = filter(lambda cot: len(cot) > cot_size, cots)
+        assert len(cots), "Circle of trust did not meet required length"
+    if cot_name:
+        assert cot_name in [cert['common_name'] for cot in cots for cert in cot], "Circle of trust did not contain the required name"
 
     filesize = getsize('{}/{}'.format(FILES_FOLDER, filename))
     send_struct(conn,{'status_code': 200, 'file_size': filesize})
