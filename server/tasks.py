@@ -77,10 +77,9 @@ def task_fetch(data, conn):
     filesize = getsize('{}/{}'.format(FILES_FOLDER, filename))
     send_struct(conn,{'status_code': 200, 'file_size': filesize})
 
-    chunk = True
     f = open('{}/{}'.format(FILES_FOLDER, filename), 'rb')
-    while chunk:
-        chunk = f.read(MAX_BUFFER_SIZE)
-        if (len(chunk)==0): break
+    chunk = f.read(MAX_BUFFER_SIZE)
+    while len(chunk) != 0:
         conn.send(chunk)
+        chunk = f.read(MAX_BUFFER_SIZE)
     f.close()
