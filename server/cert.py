@@ -29,16 +29,17 @@ def get_cert_map():
     '''
     Returns a unique list of dicts of attributes for every cert
     '''
-    return list(set([
-        {
+    certs = []
+    for certname in listdir(CERTS_FOLDER):
+        cert_dict = {
             'certname': certname,
             'subject': get_cert_subject(certname),
             'issuer': get_cert_issuer(certname),
             'common_name': get_cert_subject_name(get_cert_subject(certname)),
         }
-            for certname in listdir(CERTS_FOLDER)
-    ]))
-
+        if cert_dict not in certs:
+            certs.append(cert_dict)
+    return certs
 
 def get_issuer_certs(cert_map, cert):
     '''
