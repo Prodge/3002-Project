@@ -18,6 +18,16 @@ def is_file_in_database(filename):
     )
     return res[0][0] != 0
 
+def is_file_cert_mapping_in_database(filename, certname):
+    res = query(
+        '''
+        select count(*)
+        from {}
+        where filename = "{}" and certname = "{}"
+        '''.format(DB_TABLENAME_FILES, filename, certname)
+    )
+    return res[0][0] != 0
+
 def add_file_cert_mapping(filename, certname):
     query(
         '''
@@ -39,10 +49,10 @@ def get_file_cert_mappings():
     return query('select * from {}'.format(DB_TABLENAME_FILES))
 
 def get_file_cert_mapping(filename):
-    return query('select * from {} where filename="{}"'.format(DB_TABLENAME_FILES, filename))[0]
+    return query('select * from {} where filename="{}"'.format(DB_TABLENAME_FILES, filename))
 
-def get_linked_cert(filename):
-    return get_file_cert_mapping(filename)[1]
+def get_linked_certs(filename):
+    return [mapping[1] for mapping in get_file_cert_mapping(filename)]
 
 '''
     File Operations
