@@ -59,7 +59,7 @@ def get_all_cots(filename):
     cert_map = get_cert_map()
     start_certs = filter(lambda c: c['certname'] in certnames, cert_map)[0]
 
-    def expand_paths(paths, cots, start_cert):
+    def expand_paths(paths, cots, start_cert, cert_map):
         '''
         Take the first path in paths
         If any extended nodes exist create a new path with the extended nodes
@@ -70,7 +70,7 @@ def get_all_cots(filename):
             return cots
         path = paths[0]
         last_cert = path[-1]
-        next_certs = get_issuer_certs(last_cert['certname'])
+        next_certs = get_issuer_certs(cert_map, last_cert['certname'])
         for next_cert in next_certs:
             if next_cert == start_cert:
                 # Found a COT!
@@ -79,11 +79,11 @@ def get_all_cots(filename):
                 # Create a new path for further exploration
                 paths.append(path + [next_cert])
         paths.pop(0)
-        expand_paths(paths, cots, start_cert)
+        expand_paths(paths, cots, start_cert, cert_map)
 
     cots = []
     for start_cert in start_certs:
-        cots += expand_paths([[start_cert]], [], start_cert)
+        cots += expand_paths([[start_cert]], [], start_cert, cert_map)
 
     return cots
 
