@@ -57,7 +57,7 @@ def get_all_cots(filename):
     '''
     certnames = get_linked_certs(filename)
     cert_map = get_cert_map()
-    start_certs = filter(lambda c: c['certname'] in certnames, cert_map)[0]
+    start_certs = filter(lambda c: c['certname'] in certnames, cert_map)
 
     def expand_paths(paths, cots, start_cert, cert_map):
         '''
