@@ -68,7 +68,7 @@ def task_vouch(data, conn):
     assert file_exists(filename), "File does not exist"
     assert cert_exists(certname), "Certificate does not exist"
     assert is_file_cert_mapping_in_database(filename, certname), "This certificate already vouches for this file"
-    update_file_cert_mapping(filename, certname)
+    add_file_cert_mapping(filename, certname)
     send_msg(conn, 200, 'ok')
 
 @log_in_out
