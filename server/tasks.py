@@ -24,11 +24,11 @@ def get_data(data, *args):
         values.append(value)
     return values
 
-def send_dict(conn, dict):
+def send_struct(conn, dict):
     conn.send(json.dumps(dict) + '\0')
 
 def send_msg(conn, status_code, msg):
-    send_dict(
+    send_struct(
         {
             'status_code': status_code,
             'msg': msg,
@@ -47,11 +47,12 @@ def task_add(data, conn):
 
 @log_in_out
 def task_list(data, conn):
-    mappings_dict = [
-        {'filename': mapping[0], 'certname': mapping[1]}
-            for mapping in get_file_cert_mappings()
-    ]
-    conn.send(json.dumps(mappings_dict) + '\0')
+    send_struct(
+        [
+            {'filename': mapping[0], 'certname': mapping[1]}
+                for mapping in get_file_cert_mappings()
+        ]
+    )
 
 @log_in_out
 def task_cert(data, conn):
@@ -73,7 +74,7 @@ def task_fetch(data, conn):
     assert file_exists(filename), "File does not exist"
 
     filesize = getsize('{}/{}'.format(FILES_FOLDER, filename))
-    send_dict({'status_code': 200, 'file_size': filesize})
+    send_struct({'status_code': 200, 'file_size': filesize})
 
     chunk = True
     f = open('{}/{}'.format(FILES_FOLDER, filename), 'rb')
