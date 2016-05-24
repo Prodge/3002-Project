@@ -53,16 +53,18 @@ public class sslconnection{
     }
 
     public String receiveMessageFromServer(){
+        System.out.println("Waiting for response from server...");
         String msg = "";
         int value;
         try{
             while((value = this.messageIn.read()) != 0) msg += Character.toString((char)value);
+            System.out.println(msg);
         }catch(Exception e){
             e.printStackTrace();
         }
         return msg;
     }
-    
+
 
     public void sendFileToServer(String filename){
         System.out.println("Starting to send file");
@@ -78,12 +80,14 @@ public class sslconnection{
         }
     }
 
-    public void receiveFileFromServer(){
+    public void receiveFileFromServer(int filesize){
         System.out.println("Starting to recieve file");
         try{
             System.out.println("------------Start of file-------------\n");
-            int next = 0;
-            while((next = this.byteIn.read()) != -1){
+            int current_recieved_bytes = 0;
+            while(filesize != current_recieved_bytes){
+                int next = this.byteIn.read();
+                current_recieved_bytes++;
                 System.out.print((char)next);
             }
             System.out.println("\n------------End of file-------------\nFile recieved successfully!");
