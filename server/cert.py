@@ -70,7 +70,7 @@ def get_all_cots(filename):
             return cots
         path = paths[0]
         last_cert = path[-1]
-        next_certs = get_issuer_certs(cert_map, last_cert['certname'])
+        next_certs = get_issuer_certs(cert_map, last_cert)
         for next_cert in next_certs:
             if next_cert == start_cert:
                 # Found a COT!
@@ -79,7 +79,7 @@ def get_all_cots(filename):
                 # Create a new path for further exploration
                 paths.append(path + [next_cert])
         paths.pop(0)
-        expand_paths(paths, cots, start_cert, cert_map)
+        return expand_paths(paths, cots, start_cert, cert_map)
 
     cots = []
     for start_cert in start_certs:
