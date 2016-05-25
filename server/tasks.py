@@ -78,7 +78,7 @@ def task_vouch(data, conn):
 
 @log_in_out
 def task_fetch(data, conn):
-    filename = get_data(data, *['filename'])
+    filename, = get_data(data, *['filename'])
     cot_size = data.get('cot_size', None)
     cot_name = data.get('cot_name', None)
     assert file_exists(filename), "File does not exist"
