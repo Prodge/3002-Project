@@ -89,7 +89,7 @@ def get_all_cots(filename):
 
 
 def get_largest_cot(filename):
-    cots = get_all_cots(filenae)
+    cots = get_all_cots(filename)
     if cots == []:
         return 0
     else:
