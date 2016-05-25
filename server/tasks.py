@@ -110,7 +110,6 @@ def task_fetch(data, conn):
     if cot_size:
         cot_size = int(cot_size)
         cots = filter(lambda cot: len(cot) >= cot_size, cots)
-        log(len(cots))
         assert len(cots), "Circle of trust did not meet required length"
     if cot_name:
         assert cot_name in [cert['common_name'] for cot in cots for cert in cot], "Circle of trust did not contain the required name"
