@@ -58,7 +58,6 @@ def get_linked_certs(filename):
     File Operations
 '''
 def file_exists(filename):
-    assert cert_exists(certname), "Certificate does not exist"
     return exists('{}/{}'.format(FILES_FOLDER, filename))
 
 def cert_exists(certname):
