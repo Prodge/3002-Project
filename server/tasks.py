@@ -1,4 +1,6 @@
 from os.path import getsize
+from StringIO import StringIO
+from OpenSSL import crypto
 import json
 
 from settings import *
@@ -7,14 +9,12 @@ from queries import *
 from cert import *
 
 @log_in_out
-def write_file_from_socket(folder, filename, filesize, conn):
-    f = open('{}/{}'.format(folder, filename), 'wb')
+def write_file_from_socket(file_object, filesize, conn):
     current_bytes_received = 0
     while (int(filesize) != current_bytes_received): # filesize == CBR on final packet
         chunk = conn.recv(MAX_BUFFER_SIZE)
         current_bytes_received += len(chunk)
-        f.write(chunk)
-    f.close()
+        file_object.write(chunk)
 
 def get_data(data, *args):
     values = []
@@ -43,7 +43,9 @@ def task_add(data, conn):
         add_file_cert_mapping(filename, '')
     if file_exists(filename):
         remove_file(filename)
-    write_file_from_socket(FILES_FOLDER, filename, filesize, conn)
+    f = open('{}/{}'.format(FILES_FOLDER, filename), 'wb')
+    write_file_from_socket(f, filesize, conn)
+    f.close()
 
 @log_in_out
 def task_list(data, conn):
@@ -65,7 +67,24 @@ def task_cert(data, conn):
     send_msg(conn, 200, 'ready to receive')
     if file_exists(filename):
         remove_file(filename)
-    write_file_from_socket(CERTS_FOLDER, filename, filesize, conn)
+    # Write socket to string buffer to test validity once complete
+    cert_buffer = StringIO()
+    write_file_from_socket(cert_buffer, filesize, conn)
+    cert_buffer.seek(0)
+    try:
+        crypto.load_certificate(crypto.FILETYPE_PEM, cert_buffer.read())
+        log('Certificate check passed: {}'.format(filename))
+    except crypto.Error as e:
+        # Force re-raise with custom string
+        assert False, 'Invalid certificate upload attempt: {}'.format(filename)
+        cert_buffer.close()
+        return
+    # Finally write file from string buffer
+    cert_buffer.seek(0)
+    f = open('{}/{}'.format(CERTS_FOLDER, filename), 'wb')
+    f.write(cert_buffer.read())
+    f.close()
+    cert_buffer.close()
 
 @log_in_out
 def task_vouch(data, conn):

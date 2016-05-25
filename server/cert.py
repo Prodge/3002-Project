@@ -1,4 +1,5 @@
 from os import listdir
+from OpenSSL import crypto
 
 from settings import *
 from queries import *

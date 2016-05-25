@@ -1,6 +1,5 @@
 from os.path import exists
 from os import remove, makedirs, listdir
-from OpenSSL import crypto
 
 from settings import *
 from database import query
