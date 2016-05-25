@@ -49,7 +49,12 @@ def task_add(data, conn):
 def task_list(data, conn):
     send_struct(conn,
         [
-            {'filename': mapping[0], 'certname': mapping[1]}
+            {
+                'filename': mapping[0],
+                'certname': mapping[1],
+                'cot_size': get_largest_cot(mapping[0]),
+                'filesize': getsize('{}/{}'.format(FILES_FOLDER, mapping[0])),
+            }
                 for mapping in get_file_cert_mappings()
         ]
     )
@@ -68,12 +73,15 @@ def task_vouch(data, conn):
     assert file_exists(filename), "File does not exist"
     assert cert_exists(certname), "Certificate does not exist"
     assert not is_file_cert_mapping_in_database(filename, certname), "This certificate already vouches for this file"
-    add_file_cert_mapping(filename, certname)
+    if len(get_file_cert_mapping(filename)) == 1 and get_file_cert_mapping(filename)[0][1] == '' :
+        update_file_cert_mapping(filename, certname)
+    else:
+        add_file_cert_mapping(filename, certname)
     send_msg(conn, 200, 'ok')
 
 @log_in_out
 def task_fetch(data, conn):
-    filename = get_data(data, *['filename'])
+    filename, = get_data(data, *['filename'])
     cot_size = data.get('cot_size', None)
     cot_name = data.get('cot_name', None)
     assert file_exists(filename), "File does not exist"
