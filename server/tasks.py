@@ -43,7 +43,9 @@ def task_add(data, conn):
         add_file_cert_mapping(filename, '')
     if file_exists(filename):
         remove_file(filename)
-    write_file_from_socket(FILES_FOLDER, filename, filesize, conn)
+    f = open('{}/{}'.format(FILES_FOLDER, filename), 'wb')
+    write_file_from_socket(f, filesize, conn)
+    f.close()
 
 @log_in_out
 def task_list(data, conn):
