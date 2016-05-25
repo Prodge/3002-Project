@@ -94,4 +94,4 @@ def get_largest_cot(filename):
     if cots == []:
         return 0
     else:
-        return max(get_all_cots(filename), key=len)
+        return len(max(get_all_cots(filename), key=len))
