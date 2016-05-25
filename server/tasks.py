@@ -54,7 +54,7 @@ def task_list(data, conn):
             {
                 'filename': mapping[0],
                 'certname': mapping[1],
-                'cot_size': get_largest_cot(mapping[0]),
+                'cot_size': len(get_largest_cot(mapping[0])),
                 'filesize': getsize('{}/{}'.format(FILES_FOLDER, mapping[0])),
             }
                 for mapping in get_file_cert_mappings()
