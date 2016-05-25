@@ -22,9 +22,12 @@ public class client{
         +"                                oldtrusty server using the indicated certificate";
 
     static List<String> ARGS_PARAMS = new ArrayList<String>();
-    static List<String> set_success_msg = new ArrayList<String>();
+    static List<String> SET_SUCCESS_MSG = new ArrayList<String>();
     static String HOSTNAME = "188.166.215.84";
     static int PORT = 3000;
+    static String TRUST_NAME = "";
+    static int TRUST_SIZE = 0;
+    public static LoggerOutput log = null;
 
     private static String generateHeader(List<String> value_list){
         HashMap<String, String> dictionary = new HashMap<String, String>();
@@ -35,6 +38,9 @@ public class client{
                 dictionary.put("file_size", value_list.get(2));
             }else if (value_list.get(0).equals("vouch")){
                 dictionary.put("certname", value_list.get(2));
+            }else if (value_list.get(0).equals("fetch")){
+                if (!value_list.get(2).equals("")) dictionary.put("cot_name", value_list.get(2));
+                if (!value_list.get(3).equals("0")) dictionary.put("cot_size", value_list.get(3));
             }
         }
         JSONObject obj = new JSONObject(dictionary);
@@ -47,7 +53,7 @@ public class client{
         try{
             arry = (JSONArray) jParser.parse(header);
         }catch(Exception e){
-            System.out.println("Failed to parse!");
+            displayErrorAndExit(e,"");
         }
         return arry;
     }
@@ -58,9 +64,13 @@ public class client{
         try{
             obj = (JSONObject) jParser.parse(header);
         }catch(Exception e){
-            System.out.println("Failed to parse!");
+            displayErrorAndExit(e,"");
         }
         return obj;
+    }
+
+    private static String parseFileName(String filename){
+        return filename.substring(filename.lastIndexOf("/")+1);
     }
 
     private static int extractStatusCode(JSONObject header){
@@ -75,88 +85,90 @@ public class client{
         return ((Long) header.get("file_size"));
     }
 
-    private static boolean fileExists(String filename){
-        boolean exists = Files.isRegularFile(Paths.get(filename));
-        System.out.println(exists ? "File exists" : "Please check filename");
-        return exists;
-    }
-
-    private static void displayErrorAndExit(String msg){
-        System.out.println("Server threw the following error:\n" + msg);
+    private static void displayErrorAndExit(Exception e, String msg){
+        log.error(Thread.currentThread().getStackTrace()[2].getMethodName(), msg.equals("") ? e.toString() : "Server threw the following error:\n" + msg);
         System.exit(0);
     }
 
-    private static void addOrReplaceFile(String filename){
-        if (!fileExists(filename)) return;
-        sslconnection cdoi = new sslconnection(HOSTNAME, PORT, true);
+    private static String addOrReplaceFile(String filename){
+        if (!Files.isRegularFile(Paths.get(filename))) return ("File does not exits");
+        sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
         cdoi.sendMessageToServer(generateHeader(
-                    Arrays.asList("add", filename, String.valueOf(new File(filename).length())))
-        ,true);
-        JSONObject response = parseHeader(cdoi.receiveMessageFromServer(true));
-        if (extractStatusCode(response) != 200) displayErrorAndExit(extractMessage(response));
+                    Arrays.asList("add", parseFileName(filename), String.valueOf(new File(filename).length())))
+        );
+        JSONObject response = parseHeader(cdoi.receiveMessageFromServer());
+        if (extractStatusCode(response) != 200) displayErrorAndExit(null,extractMessage(response));
         cdoi.sendFileToServer(filename);
-        cdoi.closeConnection(true);
+        cdoi.closeConnection();
+        return ("File added successfully");
     }
 
     private static void setLengthOfTrust(int length){
-        set_success_msg.add("Not yet implemented");
+        TRUST_SIZE = length;
+        SET_SUCCESS_MSG.add("Trust size set!");
     }
 
-    private static void getExistingFile(String filename){
-        sslconnection cdoi = new sslconnection(HOSTNAME, PORT, false);
+    private static String getExistingFile(String filename, String save_to_file){
+        sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
         cdoi.sendMessageToServer(generateHeader(
-                    Arrays.asList("fetch", filename))
-        ,false);
-        JSONObject response = parseHeader(cdoi.receiveMessageFromServer(false));
-        if (extractStatusCode(response) != 200) displayErrorAndExit(extractMessage(response));
-        cdoi.receiveFileFromServer(extractFileSize(response));
-        cdoi.closeConnection(false);
+                    Arrays.asList("fetch", parseFileName(filename), TRUST_NAME, String.valueOf(TRUST_SIZE)))
+        );
+        JSONObject response = parseHeader(cdoi.receiveMessageFromServer());
+        if (extractStatusCode(response) != 200) displayErrorAndExit(null,extractMessage(response));
+        String file = cdoi.receiveFileFromServer(extractFileSize(response),save_to_file);
+        cdoi.closeConnection();
+        return file;
     }
 
     private static void setHostAddress(String host_name, int port){
         HOSTNAME = host_name;
         PORT = port;
-        set_success_msg.add("Hostname and port set!");
+        SET_SUCCESS_MSG.add("Hostname and port set!");
     }
 
-    private static void getFileListInfo(){
-        sslconnection cdoi = new sslconnection(HOSTNAME, PORT, false);
+    private static String getFileListInfo(){
+        String otpt = "";
+        sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
         cdoi.sendMessageToServer(generateHeader(
                     Arrays.asList("list"))
-        ,false);
-        JSONArray filelist = parseFileList(cdoi.receiveMessageFromServer(false));
-        System.out.format("%s%32s\n","FILE NAME", "CERTIFICATE NAME");
+        );
+        JSONArray filelist = parseFileList(cdoi.receiveMessageFromServer());
+        otpt = String.format("%s%32s%32s%32s\n","FILE NAME", "CERTIFICATE NAME", "LENGTH OF COT", "FILE SIZE");
+        if (filelist.size()==0) otpt += "--------------------------NO FILES IN SERVER-----------------------";
         for (int i=0; i<filelist.size(); i++){
             JSONObject obj = (JSONObject) filelist.get(i);
-            System.out.format("%s%32s\n",obj.get("filename"), obj.get("certname"));
+            otpt += String.format("%s%32s%32s%32s\n",obj.get("filename"), obj.get("certname"), obj.get("cot_size"), obj.get("filesize"));
         }
-        cdoi.closeConnection(false);
+        cdoi.closeConnection();
+        return otpt;
     }
 
     private static void setTrustName(String name){
-        set_success_msg.add("Not yet implemented");
+        TRUST_NAME = name;
+        SET_SUCCESS_MSG.add("Trust name set!");
     }
 
-    private static void uploadCertificate(String certificate){
-        if (!fileExists(certificate)) return;
-        sslconnection cdoi = new sslconnection(HOSTNAME, PORT, true);
+    private static String uploadCertificate(String certificate){
+        if (!Files.isRegularFile(Paths.get(certificate))) return ("Certificate does not exits");
+        sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
         cdoi.sendMessageToServer(generateHeader(
-                    Arrays.asList("cert", certificate, String.valueOf(new File(certificate).length())))
-        ,true);
-        JSONObject response = parseHeader(cdoi.receiveMessageFromServer(true));
-        if (extractStatusCode(response) != 200) displayErrorAndExit(extractMessage(response));
+                    Arrays.asList("cert", parseFileName(certificate), String.valueOf(new File(certificate).length())))
+        );
+        JSONObject response = parseHeader(cdoi.receiveMessageFromServer());
+        if (extractStatusCode(response) != 200) displayErrorAndExit(null,extractMessage(response));
         cdoi.sendFileToServer(certificate);
-        cdoi.closeConnection(true);
+        cdoi.closeConnection();
+        return ("Certificate added successfully");
     }
 
-    private static void checkAuthenticity(String filename, String certificate){
-        sslconnection cdoi = new sslconnection(HOSTNAME, PORT, true);
+    private static String checkAuthenticity(String filename, String certificate){
+        sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
         cdoi.sendMessageToServer(generateHeader(
-                    Arrays.asList("vouch", filename, certificate)
-        ),true);
-        JSONObject response = parseHeader(cdoi.receiveMessageFromServer(true));
-        System.out.println(extractMessage(response));
-        cdoi.closeConnection(true);
+                    Arrays.asList("vouch", parseFileName(filename),parseFileName(certificate))
+        ));
+        JSONObject response = parseHeader(cdoi.receiveMessageFromServer());
+        cdoi.closeConnection();
+        return (extractMessage(response));
     }
 
     private static boolean validInteger(String num){
@@ -174,7 +186,7 @@ public class client{
     }
 
     private static boolean parseArguments(String[] args){
-        List<String> string_args = Arrays.asList("-a", "-f", "-n", "-u", "-c");
+        List<String> string_args = Arrays.asList("-a", "-f", "-n", "-u", "-c", "-o");
         for (int i=0; i<args.length; i++){
             if (string_args.contains(args[i]) && i!=args.length-1 ){
                 if (args[i].equals("-c")){
@@ -182,13 +194,13 @@ public class client{
                 }else{
                     if (!validString(args[i+1])) return false;
                 }
-            }else if (args[i].equals("-v") && i!=args.length-2){
+            }else if (args[i].equals("-v") && i<args.length-2){
                 if (!(validString(args[i+1]) && validString(args[i+2]))) return false;
             }else if (args[i].equals("-h") && i!=args.length-1){
                 if (args[i+1].endsWith(":") || !args[i+1].contains(":")) return false;
                 String[] data = args[i+1].split(":");
                 if (!(validString(data[0]) && validInteger(data[1]))) return false;
-            }else if (args[i].equals("-l")){
+            }else if (args[i].equals("-l") || args[i].equals("--verbose")){
                 ARGS_PARAMS.add(args[i]);
                 continue;
             }else{
@@ -202,10 +214,14 @@ public class client{
     };
 
     public static void main(String[] args) {
+        log = new LoggerOutput(false);
+
         if (!parseArguments(args)){
-            System.out.println("Invalid argument. PLEASE CHECK USAGE BELOW...\n" + USAGE_DOC);
+            if (!Arrays.asList(args).contains("--help")) log.error("", "Invalid argument. PLEASE CHECK USAGE BELOW...");
+            System.out.println(USAGE_DOC);
             System.exit(0);
         }
+
         String[] set_args = new String[] {"-c","-h","-n"};
         for (String arg : set_args){
             int index = ARGS_PARAMS.indexOf(arg);
@@ -216,27 +232,48 @@ public class client{
             }else if (arg.equals("-c")){ setLengthOfTrust(Integer.parseInt(ARGS_PARAMS.get(index+1)));
             }else if (arg.equals("-n")){ setTrustName(ARGS_PARAMS.get(index+1));}
         }
-        if ((set_success_msg.size()*2) == ARGS_PARAMS.size()){
-            System.out.println("Please use an operation");
+
+        if ((SET_SUCCESS_MSG.size()*2) == ARGS_PARAMS.size()){
+            log.error("", "Please use an operation");
             System.exit(0);
         }
-        if (ARGS_PARAMS.indexOf("-f")!=-1 && ARGS_PARAMS.indexOf("-l")!=-1)set_success_msg.forEach(System.out::println);
+        if (ARGS_PARAMS.contains("--verbose")) log.DEBUG = true;
+        if ((!ARGS_PARAMS.contains("-f") && !ARGS_PARAMS.contains("-l")) || ARGS_PARAMS.contains("--verbose"))
+            for (String msg : SET_SUCCESS_MSG) log.success(msg);
+
         for(int i=0; i<ARGS_PARAMS.size(); i++){
+            String result = "";
             switch (ARGS_PARAMS.get(i)){
                 case "-a":
-                    addOrReplaceFile(ARGS_PARAMS.get(++i));
+                    log.startLog("adding/replacing file to server");
+                    result = addOrReplaceFile(ARGS_PARAMS.get(++i));
+                    log.endLog();
+                    System.err.println(result);
                     break;
                 case "-f":
-                    getExistingFile(ARGS_PARAMS.get(++i));
+                    log.startLog("fetching file from server");
+                    result = getExistingFile(ARGS_PARAMS.get(++i),
+                            ARGS_PARAMS.contains("-o") ? ARGS_PARAMS.get(ARGS_PARAMS.indexOf("-o")+1) : "");
+                    log.endLog();
+                    if (!result.equals("")) System.out.println(result);
                     break;
                 case "-l":
-                    getFileListInfo();
+                    log.startLog("listing files in server");
+                    result = getFileListInfo();
+                    log.endLog();
+                    System.out.println(result);
                     break;
                 case "-u":
-                    uploadCertificate(ARGS_PARAMS.get(++i));
+                    log.startLog("uploading certificate to server");
+                    result = uploadCertificate(ARGS_PARAMS.get(++i));
+                    log.endLog();
+                    System.err.println(result);
                     break;
                 case "-v":
-                    checkAuthenticity(ARGS_PARAMS.get(++i), ARGS_PARAMS.get(++i));
+                    log.startLog("vouching for file in server");
+                    result = checkAuthenticity(ARGS_PARAMS.get(++i), ARGS_PARAMS.get(++i));
+                    log.endLog();
+                    System.out.println(result);
                     break;
             }
         }

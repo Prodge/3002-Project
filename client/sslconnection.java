@@ -15,8 +15,10 @@ public class sslconnection{
 
     private String trustStorefile = "clientcert";
     private String password = "123456";
+    private static LoggerOutput log = client.log;
 
-    public sslconnection(String host_name, int port, boolean debug){
+    public sslconnection(String host_name, int port){
+        log.startLogMethod();
         try {
             //set trust store
             System.setProperty("javax.net.ssl.trustStore", this.trustStorefile);
@@ -34,79 +36,89 @@ public class sslconnection{
             //These streams are used for tansferring string messages
             this.messageIn = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
             this.messageOut = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
-
-            if (debug) System.out.println("Connection estabilished!");
         } catch (Exception e) {
-            e.printStackTrace();
+            printExceptionAndExit(e);
         }
+        log.endLogMethod("Estabilished connection with server");
     }
 
-    public void sendMessageToServer(String msg, boolean debug){
-        if (debug) System.out.println("Sending message to server...");
+    private void printExceptionAndExit(Exception e){
+        log.error(Thread.currentThread().getStackTrace()[2].getMethodName(), e.toString());
+        System.exit(0);
+    }
+
+    public void sendMessageToServer(String msg){
+        log.startLogMethod();
         try{
             this.messageOut.write(msg);
             this.messageOut.flush();
-            if (debug) System.out.println("Message sent!");
         }catch (Exception e){
-            e.printStackTrace();
+            printExceptionAndExit(e);
         }
+        log.endLogMethod("Sent message to server");
     }
 
-    public String receiveMessageFromServer(boolean debug){
-        if (debug) System.out.println("Waiting for response from server...");
+    public String receiveMessageFromServer(){
+        log.startLogMethod();
         String msg = "";
         int value;
         try{
             while((value = this.messageIn.read()) != 0) msg += Character.toString((char)value);
-            if (debug) System.out.println(msg);
         }catch(Exception e){
-            e.printStackTrace();
+            printExceptionAndExit(e);
         }
+        log.endLogMethod("Recieved message of length " + msg.length());
         return msg;
     }
 
 
     public void sendFileToServer(String filename){
-        System.out.println("Starting to send file");
+        log.startLogMethod();
         BufferedInputStream file_contents = null;
         int next;
         try{
             file_contents = new BufferedInputStream(new FileInputStream(filename));
             while((next = file_contents.read()) != -1) this.byteOut.write(next);
             this.byteOut.flush();
-            System.out.println("File sent successfully!");
         }catch(IOException e){
-            e.printStackTrace();
+            printExceptionAndExit(e);
         }
+        log.endLogMethod("Sent file to server");
     }
 
-    public void receiveFileFromServer(long filesize){
-        //System.out.println("Starting to recieve file");
+    public String receiveFileFromServer(long filesize, String save_to_file){
+        log.startLogMethod();
+        String file = "";
         try{
-            //System.out.println("------------Start of file-------------\n");
+            FileOutputStream fos = null;
+            if (!save_to_file.equals("")) fos = new FileOutputStream(save_to_file);
             long current_recieved_bytes = 0;
             while(filesize != current_recieved_bytes){
                 int next = this.byteIn.read();
+                if (!save_to_file.equals("")) {fos.write(next);}
+                else {file += (char)next;}
                 current_recieved_bytes++;
-                System.out.print((char)next);
             }
-            //System.out.println("\n------------End of file-------------\nFile recieved successfully!");
+            if (!save_to_file.equals("")) fos.close();
         }catch(IOException e){
-            e.printStackTrace();
+            printExceptionAndExit(e);
         }
+        log.endLogMethod("Recieved file from server");
+        return file;
     }
 
-    public void closeConnection(boolean debug){
+    public void closeConnection(){
+        log.startLogMethod();
         try{
             this.byteIn.close();
             this.byteOut.close();
             this.messageIn.close();
             this.messageOut.close();
             this.socket.close();
-            if (debug) System.out.println("Connection closed!");
         }catch(IOException e){
-            e.printStackTrace();
+            printExceptionAndExit(e);
         }
+        log.endLogMethod("Closed connection to server");
     }
 
 

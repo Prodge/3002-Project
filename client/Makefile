@@ -7,6 +7,7 @@ JC = javac
 	$(JC) $(JFLAGS) $*.java
 
 CLASSES = \
+	LoggerOutput.java\
 	sslconnection.java\
 	client.java
 
