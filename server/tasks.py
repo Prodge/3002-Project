@@ -73,9 +73,11 @@ def task_cert(data, conn):
         crypto.load_certificate(crypto.FILETYPE_PEM, cert_buffer.read())
         log('Certificate check passed: {}'.format(filename))
     except crypto.Error as e:
-        log('Invalid certificate upload attempt: {}'.format(filename))
+        # Force re-raise with custom string
+        assert False, 'Invalid certificate upload attempt: {}'.format(filename)
         cert_buffer.close()
         return
+    # Finally write file from string buffer
     cert_buffer.seek(0)
     f = open('{}/{}'.format(CERTS_FOLDER, filename), 'wb')
     f.write(cert_buffer.read())
