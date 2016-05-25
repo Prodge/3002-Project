@@ -43,3 +43,5 @@ example (list):
 ## Dependencies
 - OpenSSL for python
 sudo pip install pyOpenSSL
+
+Python 2.7
