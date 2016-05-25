@@ -40,3 +40,6 @@ example (list):
 - If a COT size is specified, can't fetch a file unless it is of that COT
 - If a COT name is specified, can't fetch a file unless the COT contains a cert of that name
 
+## Dependencies
+- OpenSSL for python
+sudo pip install pyOpenSSL

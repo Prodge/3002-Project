@@ -1,5 +1,6 @@
 from os.path import exists
-from os import remove, makedirs
+from os import remove, makedirs, listdir
+from OpenSSL import crypto
 
 from settings import *
 from database import query
@@ -14,6 +15,16 @@ def is_file_in_database(filename):
         from {}
         where filename = "{}"
         '''.format(DB_TABLENAME_FILES, filename)
+    )
+    return res[0][0] != 0
+
+def is_file_cert_mapping_in_database(filename, certname):
+    res = query(
+        '''
+        select count(*)
+        from {}
+        where filename = "{}" and certname = "{}"
+        '''.format(DB_TABLENAME_FILES, filename, certname)
     )
     return res[0][0] != 0
 
@@ -40,10 +51,14 @@ def get_file_cert_mappings():
 def get_file_cert_mapping(filename):
     return query('select * from {} where filename="{}"'.format(DB_TABLENAME_FILES, filename))
 
+def get_linked_certs(filename):
+    return [mapping[1] for mapping in get_file_cert_mapping(filename)]
+
 '''
     File Operations
 '''
 def file_exists(filename):
+    assert cert_exists(certname), "Certificate does not exist"
     return exists('{}/{}'.format(FILES_FOLDER, filename))
 
 def cert_exists(certname):

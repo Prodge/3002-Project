@@ -4,6 +4,7 @@ import json
 from settings import *
 from logger import *
 from queries import *
+from cert import *
 
 @log_in_out
 def write_file_from_socket(folder, filename, filesize, conn):
@@ -66,16 +67,23 @@ def task_vouch(data, conn):
     filename, certname = get_data(data, *['filename', 'certname'])
     assert file_exists(filename), "File does not exist"
     assert cert_exists(certname), "Certificate does not exist"
-    if is_file_in_database(filename):
-        update_file_cert_mapping(filename, certname)
-    else:
-        add_file_cert_mapping(filename, certname)
+    assert not is_file_cert_mapping_in_database(filename, certname), "This certificate already vouches for this file"
+    add_file_cert_mapping(filename, certname)
     send_msg(conn, 200, 'ok')
 
 @log_in_out
 def task_fetch(data, conn):
-    filename, = get_data(data, *['filename'])
+    filename = get_data(data, *['filename'])
+    cot_size = data.get('cot_size', None)
+    cot_name = data.get('cot_name', None)
     assert file_exists(filename), "File does not exist"
+
+    cots = get_all_cots(filename)
+    if cot_size:
+        cots = filter(lambda cot: len(cot) > cot_size, cots)
+        assert len(cots), "Circle of trust did not meet required length"
+    if cot_name:
+        assert cot_name in [cert['common_name'] for cot in cots for cert in cot], "Circle of trust did not contain the required name"
 
     filesize = getsize('{}/{}'.format(FILES_FOLDER, filename))
     send_struct(conn,{'status_code': 200, 'file_size': filesize})
