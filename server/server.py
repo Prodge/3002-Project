@@ -18,7 +18,7 @@ def init():
     db.init()
 
     # Folders
-    for folder in [REQUIRED_FOLDERS]:
+    for folder in REQUIRED_FOLDERS:
         if exists(folder):
             log('Folder "{}" exists'.format(folder))
         else:
