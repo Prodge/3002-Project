@@ -106,7 +106,9 @@ def task_fetch(data, conn):
     assert file_exists(filename), "File does not exist"
 
     cots = get_all_cots(filename)
+    log(cot_size)
     if cot_size:
+        cot_size = int(cot_size)
         cots = filter(lambda cot: len(cot) >= cot_size, cots)
         log(len(cots))
         assert len(cots), "Circle of trust did not meet required length"
