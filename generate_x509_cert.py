@@ -7,6 +7,17 @@ from time import gmtime, mktime
 from os.path import exists, join
 from sys import argv
 
+'''
+USAGE:
+
+    python2 generate_x509_cert.py {subject-name} {issuer-name}
+
+OUTPUT FILENAME:
+
+    {subject-name}-{issuer-name}.pem
+
+'''
+
 def create_self_signed_cert(cert_dir):
     # create a key pair
     k = crypto.PKey()
@@ -28,7 +39,7 @@ def create_self_signed_cert(cert_dir):
     cert.set_pubkey(k)
     cert.sign(k, 'sha1')
 
-    open(join(cert_dir, argv[1]+'.pem'), "wt").write(
+    open(join(cert_dir, '{}-{}.pem'.format(argv[1], argv[2])), "wt").write(
         crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
 
 create_self_signed_cert(".")
