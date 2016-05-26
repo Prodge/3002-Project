@@ -11,15 +11,18 @@ public class client{
 
     static final String USAGE_DOC =
         "Usage: java client [-arg PARAM(S) -arg PARAM(S) ...]\n"
-        +"    -a FILENAME                 add or replace a file on the oldtrusty server\n\n"
-        +"    -c NUMBER                   provide the required circumference (length) of a circle of trust\n\n"
-        +"    -f FILENAME                 fetch an existing file from the oldtrusty server\n\n"
-        +"    -h HOSTNAME:PORT            provide the remote address hosting the oldtrusty server\n\n"
-        +"    -l                          list all stored files and how they are protected\n\n"
-        +"    -n NAME                     require a circle of trust to involve the named person (i.e. their certificate)\n\n"
-        +"    -u CERTIFICATE              upload a certificate to the oldtrusty server\n\n"
+        +"    -a FILENAME                 add or replace a file on the oldtrusty server\n"
+        +"    -c NUMBER                   provide the required circumference (length) of a circle of trust\n"
+        +"    -f FILENAME                 fetch an existing file from the oldtrusty server\n"
+        +"    -o FILENAME                 can only be used when -f is used to write fetched file to a file\n"
+        +"    -h HOSTNAME:PORT            provide the remote address hosting the oldtrusty server\n"
+        +"    -l                          list all stored files and how they are protected\n"
+        +"    -n NAME                     require a circle of trust to involve the named person (i.e. their certificate)\n"
+        +"    -u CERTIFICATE              upload a certificate to the oldtrusty server\n"
         +"    -v FILENAME CERTIFICATE     vouch for the authenticity of an existing file in the\n"
-        +"                                oldtrusty server using the indicated certificate";
+        +"                                oldtrusty server using the indicated certificate\n"
+        +"    --verbose                   debugs the operations performed\n"
+        +"    --help                      shows the this usage document";
 
     static List<String> ARGS_PARAMS = new ArrayList<String>();
     static List<String> SET_SUCCESS_MSG = new ArrayList<String>();
@@ -90,6 +93,29 @@ public class client{
         System.exit(0);
     }
 
+    private static String generateFileInfoLine(JSONObject obj){
+        String result = "";
+        JSONArray cert_list = (JSONArray) obj.get("certname");
+        String certs = ""; boolean line_1 = true;
+        if (cert_list.size()==0) result += String.format("%30s%50s%20s\n",obj.get("filename"),obj.get("cot_size"),obj.get("filesize"));
+        for (int j=0; j<cert_list.size(); j++){
+            String cert = (String) cert_list.get(j);
+            if ((cert.length()+certs.length())<=27 && j!=(cert_list.size()-1)){
+                certs+=cert+",";
+            }else{
+                if (cert.length()+certs.length()<=27) certs+=cert;cert="";
+                if (line_1){
+                    result += String.format("%30s%30s%20s%20s\n",obj.get("filename"),certs,obj.get("cot_size"),obj.get("filesize"));
+                }else{
+                    result += String.format("%30s%30s\n"," ",certs);
+                }
+                if (!cert.equals("")) result += String.format("%30s%30s\n"," ",cert);
+                certs = cert+","; line_1 = false;
+            }
+        }
+        return result;
+    }
+
     private static String addOrReplaceFile(String filename){
         if (!Files.isRegularFile(Paths.get(filename))) return ("File does not exits");
         sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
@@ -127,20 +153,17 @@ public class client{
     }
 
     private static String getFileListInfo(){
-        String otpt = "";
+        String result = "";
         sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
         cdoi.sendMessageToServer(generateHeader(
                     Arrays.asList("list"))
         );
         JSONArray filelist = parseFileList(cdoi.receiveMessageFromServer());
-        otpt = String.format("%s%32s%32s%32s\n","FILE NAME", "CERTIFICATE NAME", "LENGTH OF COT", "FILE SIZE");
-        if (filelist.size()==0) otpt += "--------------------------NO FILES IN SERVER-----------------------";
-        for (int i=0; i<filelist.size(); i++){
-            JSONObject obj = (JSONObject) filelist.get(i);
-            otpt += String.format("%s%32s%32s%32s\n",obj.get("filename"), obj.get("certname"), obj.get("cot_size"), obj.get("filesize"));
-        }
+        result = String.format("%30s%30s%20s%20s\n","FILE NAME", "CERTIFICATE NAME", "LENGTH OF COT", "FILE SIZE(bytes)");
+        if (filelist.size()==0) result += String.format("%30s%15s","","------N O    F I L E S    I N    S E R V E R------");
+        for (int i=0; i<filelist.size(); i++) result += generateFileInfoLine((JSONObject) filelist.get(i));
         cdoi.closeConnection();
-        return otpt;
+        return result;
     }
 
     private static void setTrustName(String name){
@@ -248,7 +271,7 @@ public class client{
                     log.startLog("adding/replacing file to server");
                     result = addOrReplaceFile(ARGS_PARAMS.get(++i));
                     log.endLog();
-                    System.err.println(result);
+                    System.out.println(result);
                     break;
                 case "-f":
                     log.startLog("fetching file from server");
@@ -267,7 +290,7 @@ public class client{
                     log.startLog("uploading certificate to server");
                     result = uploadCertificate(ARGS_PARAMS.get(++i));
                     log.endLog();
-                    System.err.println(result);
+                    System.out.println(result);
                     break;
                 case "-v":
                     log.startLog("vouching for file in server");
