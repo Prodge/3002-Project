@@ -20,14 +20,12 @@ public class LoggerOutput{
     public void startLog(String name){
         OPERATION_NAME = name;
         OPERATION_BEGIN = new Date();
-        String result = String.format("[%s] Operation %s started", DateFormat.getTimeInstance().format(OPERATION_BEGIN), OPERATION_NAME);
-        if (DEBUG) System.err.println(result);
+        if (DEBUG) System.err.printf("[%s] Operation %s started\n", DateFormat.getTimeInstance().format(OPERATION_BEGIN), OPERATION_NAME);
     }
 
     public void endLog(){
         long time_run = (new Date()).getTime() - OPERATION_BEGIN.getTime();
-        String result = String.format("[%s] Operation %s finished in %dms", DateFormat.getTimeInstance().format(OPERATION_BEGIN), OPERATION_NAME, time_run);
-        if (DEBUG) System.err.println(result);
+        if (DEBUG) System.err.printf("[%s] Operation %s finished in %dms\n", DateFormat.getTimeInstance().format(new Date()), OPERATION_NAME, time_run);
     }
 
     public void startLogMethod(){
@@ -36,14 +34,16 @@ public class LoggerOutput{
 
     public void endLogMethod(String msg){
         long time_run = (new Date()).getTime() - METHOD_BEGIN.getTime();
-        String result = String.format("    -- %s in %dms", msg, time_run);
-        if (DEBUG) System.err.println(result);
+        if (DEBUG) System.err.printf("    -- %s in %dms\n", msg, time_run);
     }
 
     public void error(String method_name, String msg){
         String result = "";
-        if (method_name.equals("")){ result = String.format("ERROR: %s", msg);}
-        else { result = String.format("ERROR: Method %s %s",method_name, msg);}
+        if (method_name.equals("")){
+            result = String.format("ERROR: %s", msg);
+        }else{
+            result = String.format("ERROR: Method %s %s",method_name, msg);
+        }
         System.err.println(result + "\nClient terminated");
     }
 
@@ -52,6 +52,11 @@ public class LoggerOutput{
     }
 
     public void success(String msg){
-        if (DEBUG) System.err.println( msg);
+        if (DEBUG) System.err.println(msg);
+    }
+
+    public void endLoggerOutput(){
+        long time_run = (new Date()).getTime() - CLASS_START.getTime();
+        if (DEBUG) System.err.printf("Client has run for %dms\n", time_run);
     }
 }

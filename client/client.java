@@ -300,5 +300,7 @@ public class client{
                     break;
             }
         }
+
+        log.endLoggerOutput();
     }
 }
