@@ -33,7 +33,7 @@ def is_file_cert_mapping_in_database(filename, certname):
         '''
         select count(*)
         from {}
-        where filename = "{}" and certname = "{}"
+        where filename = "{}" and attr = "{}"
         '''.format(DB_TABLENAME_FILES, filename, certname)
     )
     return res[0][0] != 0
