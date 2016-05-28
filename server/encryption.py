@@ -14,12 +14,12 @@ def encrypt_block(block, key, key_size=256):
     block = pad_block(block)
     iv = Random.new().read(AES.block_size)
     cipher = AES.new(key, AES.MODE_CBC, iv)
-    return iv + cipher.encrypt_block(block)
+    return iv + cipher.encrypt(block)
 
 def decrypt_block(ciphertext, key):
     iv = ciphertext[:AES.block_size]
     cipher = AES.new(key, AES.MODE_CBC, iv)
-    plaintext = cipher.decrypt_block(ciphertext[AES.block_size:])
+    plaintext = cipher.decrypt(ciphertext[AES.block_size:])
     return plaintext.rstrip(b"\0")
 
 @log_in_out
@@ -45,7 +45,7 @@ def get_key():
     )
 
 def hash_key(key):
-    return pbkdf2_sha256.encrypt_block(key, rounds=100000, salt_size=16)
+    return pbkdf2_sha256.encrypt(key, rounds=100000, salt_size=16)
 
 def check_key(key, hashed_key):
     return pbkdf2_sha256.verify(key, hashed_key)
