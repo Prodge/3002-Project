@@ -45,15 +45,15 @@ example (list):
 
 ## Dependencies
 - OpenSSL for python
--- sudo pip install pyOpenSSL
+  - sudo pip install pyOpenSSL
 
 - bcrypt for python
--- sudo pip install py-bcrypt
+  - sudo pip install py-bcrypt
 
 - pycrypto for python
--- sudo pip install pycrypto
+  - sudo pip install pycrypto
 
 - python-dev package
--- sudo apt-get install python-dev
+  - sudo apt-get install python-dev
 
 - Python 2.7
