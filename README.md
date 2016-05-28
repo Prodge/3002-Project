@@ -47,4 +47,13 @@ example (list):
 - OpenSSL for python
 sudo pip install pyOpenSSL
 
-Python 2.7
+- bcrypt for python
+sudo pip install py-bcrypt
+
+- pycrypto for python
+sudo pip install pycrypto
+
+- python-dev package
+sudo apt-get install python-dev
+
+Py- thon 2.7

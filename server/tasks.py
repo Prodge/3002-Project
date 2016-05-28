@@ -1,11 +1,12 @@
-from os.path import getsize
 from StringIO import StringIO
+from os.path import getsize
 from OpenSSL import crypto
 import json
 
+from encryption import *
 from settings import *
-from logger import *
 from queries import *
+from logger import *
 from cert import *
 
 @log_in_out
@@ -38,20 +39,38 @@ def send_msg(conn, status_code, msg):
 @log_in_out
 def task_add(data, conn):
     filename, filesize = get_data(data, *['filename', 'file_size'])
+    key = data.get('key', None)
+    filepath = '{}/{}'.format(FILES_FOLDER, filename)
     assert '/' not in filename, "Invalid filename"
     send_msg(conn, 200, 'ready to receive')
     if not is_file_in_database(filename):
         add_file_cert_mapping(filename, '')
+    if is_file_key_in_database(filename):
+        assert key, "This file requires a key to update"
+        assert check_key(key, get_file_key_hash(filename)), "Invalid key"
     if file_exists(filename):
         remove_file(filename)
-    f = open('{}/{}'.format(FILES_FOLDER, filename), 'wb')
+    f = open(filepath, 'wb')
     write_file_from_socket(f, filesize, conn)
     f.close()
+
+    if key:
+        encrypt_file(filepath, key)
+        remove_file(filename)
+        if not is_file_key_in_database(filename):
+            add_file_key_mapping(filename, hash_key(key))
 
 @log_in_out
 def task_list(data, conn):
     file_list = []
-    for mapping in get_file_cert_mappings():
+    key = data.get('key', None)
+    cert_file_mappings = list(get_file_cert_mappings())
+    if key:
+        assert check_key(key, get_file_key_hash(filename)), "Invalid key"
+        hidden_files = get_protected_files() - get_key_hash_files(hash_key(key))
+        cert_file_mappings = filter(lambda f: f[0] not in hidden_files, cert_file_mappings)
+
+    for mapping in cert_file_mappings:
         file_found = False
         for f in file_list:
             if f['filename'] == mapping[0]:
@@ -111,6 +130,8 @@ def task_fetch(data, conn):
     filename, = get_data(data, *['filename'])
     cot_size = data.get('cot_size', None)
     cot_name = data.get('cot_name', None)
+    key = data.get('key', None)
+    filepath = '{}/{}'.format(FILES_FOLDER, filename)
     assert file_exists(filename) and is_file_in_database(filename), "{} does not exist".format(filename)
 
     cots = get_all_cots(filename)
@@ -122,12 +143,23 @@ def task_fetch(data, conn):
     if cot_name:
         assert cot_name in [cert['common_name'] for cot in cots for cert in cot], "Circle of trust did not contain the required name"
 
+    if key:
+        assert is_file_key_mapping_in_database(filename), "This file does not need a key to fetch"
+        assert check_key(key, get_file_key_hash(filename)), "Invalid key"
+        decrypt_file(filename)
+
     filesize = getsize('{}/{}'.format(FILES_FOLDER, filename))
     send_struct(conn,{'status_code': 200, 'file_size': filesize})
 
-    f = open('{}/{}'.format(FILES_FOLDER, filename), 'rb')
+    f = open(filepath, 'rb')
     chunk = f.read(MAX_BUFFER_SIZE)
     while len(chunk) != 0:
         conn.send(chunk)
         chunk = f.read(MAX_BUFFER_SIZE)
     f.close()
+
+    if key:
+        remove_file(filename)
+
+def task_get_key(data, conn):
+    send_struct(get_key())
