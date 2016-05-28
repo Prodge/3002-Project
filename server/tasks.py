@@ -49,17 +49,23 @@ def task_add(data, conn):
 
 @log_in_out
 def task_list(data, conn):
-    send_struct(conn,
-        [
-            {
-                'filename': mapping[0],
-                'certname': mapping[1],
-                'cot_size': len(get_largest_cot(mapping[0])),
-                'filesize': getsize('{}/{}'.format(FILES_FOLDER, mapping[0])),
-            }
-                for mapping in get_file_cert_mappings()
-        ]
-    )
+    file_list = []
+    for mapping in get_file_cert_mappings():
+        file_found = False
+        for f in file_list:
+            if f['filename'] == mapping[0]:
+                file_found = True
+                f['certname'].append(mapping[1])
+        if not file_found:
+            file_list.append(
+                {
+                    'filename': mapping[0],
+                    'certname': [mapping[1]],
+                    'cot_size': len(get_largest_cot(mapping[0])),
+                    'filesize': getsize('{}/{}'.format(FILES_FOLDER, mapping[0])),
+                }
+            )
+    send_struct(conn, file_list)
 
 @log_in_out
 def task_cert(data, conn):
