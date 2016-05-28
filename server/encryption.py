@@ -1,6 +1,8 @@
 from bcrypt import hashpw, checkpw, gensalt
 from Crypto.Cipher import AES
-from Crypto import Random
+
+import random
+import string
 
 def pad(s):
     return s + b"\0" * (AES.block_size - len(s) % AES.block_size)
@@ -32,7 +34,10 @@ def decrypt_file(file_name, key):
         fo.write(dec)
 
 def get_key():
-    return str(Random.new().read(32))
+    return ''.join(
+        random.choice(string.ascii_uppercase + string.digits + string.ascii_lowercase)
+        for _ in range(32)
+    )
 
 def hash_key(key):
     hashpw('testing', gensalt())
