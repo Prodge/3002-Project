@@ -1,4 +1,4 @@
-from bcrypt import hashpw, checkpw, gensalt
+from passlib.hash import pbkdf2_sha256
 from Crypto.Cipher import AES
 from Crypto import Random
 import random
@@ -42,7 +42,7 @@ def get_key():
     )
 
 def hash_key(key):
-    return hashpw('testing', gensalt())
+    return pbkdf2_sha256.encrypt(key, rounds=100000, salt_size=16)
 
 def check_key(key, hashed_key):
-    return checkpw(key, hashed_key)
+    return pbkdf2_sha256.verify(key, hashed_key)
