@@ -29,12 +29,15 @@ example (list):
 
 | Option | Operation value | Additional Keys |
 | ------ | --------------- | --------------- |
-| -a | "add" | "filename", "file_size"
-| -f | "fetch" | "filename", _"cot_size"_, _"cot_name"_
-| -l | "list" |
+| -a | "add" | "filename", "file_size", _"key"_
+| -f | "fetch" | "filename", _"cot_size"_, _"cot_name"_, _"key"_
+| -l | "list" | _"key"_
 | -u | "cert" | "filename", "file_size"
 | -v | "vouch" | "filename", "certname"
+| -k | "get_key" |
 - _Italics/bold_ indicate the key is optional
+
+- "key" (-k) will return a unique secure key to use for storing and retrieving files
 
 ## Circle of trust spec
 - If a COT size is specified, can't fetch a file unless it is of that COT
@@ -44,4 +47,13 @@ example (list):
 - OpenSSL for python
 sudo pip install pyOpenSSL
 
-Python 2.7
+- bcrypt for python
+sudo pip install py-bcrypt
+
+- pycrypto for python
+sudo pip install pycrypto
+
+- python-dev package
+sudo apt-get install python-dev
+
+Py- thon 2.7

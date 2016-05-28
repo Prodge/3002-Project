@@ -11,6 +11,11 @@ KEY_FILE = CERT_FILE
 
 DB_FILENAME = 'old_trusty.db'
 DB_TABLENAME_FILES = 'file_cert_map'
+DB_TABLENAME_KEYS = 'file_key_map'
+DB_TABLES = [
+    DB_TABLENAME_FILES,
+    DB_TABLENAME_KEYS,
+]
 
 MAX_FILENAME_LENGTH = 200
 
@@ -24,6 +29,8 @@ REQUIRED_FOLDERS = [
     FILES_FOLDER,
     CERTS_FOLDER,
 ]
+
+ENCRYPTED_FILE_POSTFIX = '.lock'
 
 # Update with cli options
 parser = OptionParser(usage="Usage: python server.py [options]")

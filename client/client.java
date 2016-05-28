@@ -100,17 +100,18 @@ public class client{
         if (cert_list.size()==0) result += String.format("%30s%50s%20s\n",obj.get("filename"),obj.get("cot_size"),obj.get("filesize"));
         for (int j=0; j<cert_list.size(); j++){
             String cert = (String) cert_list.get(j);
-            if ((cert.length()+certs.length())<=27 && j!=(cert_list.size()-1)){
-                certs+=cert+",";
+            if (certs.length()+cert.length()<=27 && j!=cert_list.size()-1){
+                certs += cert + ",";
             }else{
-                if (cert.length()+certs.length()<=27) certs+=cert;cert="";
+                if (certs.length()+cert.length()<=27) certs += cert + (j==cert_list.size()-1 ? "" : ",");
                 if (line_1){
                     result += String.format("%30s%30s%20s%20s\n",obj.get("filename"),certs,obj.get("cot_size"),obj.get("filesize"));
+                    line_1 = false;
                 }else{
                     result += String.format("%30s%30s\n"," ",certs);
+                    certs = cert + ",";
                 }
-                if (!cert.equals("")) result += String.format("%30s%30s\n"," ",cert);
-                certs = cert+","; line_1 = false;
+                if (!certs.contains(cert) && j==cert_list.size()-1) result += String.format("%30s%30s\n"," ",cert);
             }
         }
         return result;
