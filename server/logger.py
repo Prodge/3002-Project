@@ -10,7 +10,13 @@ def log(event):
             datetime.datetime.now(),
             '%Y-%m-%d %H:%M:%S:%f'
         )
-        print '[{}]  {}'.format(timestamp, event)
+        this_log = '[{}]  {}'.format(timestamp, event)
+        if LOG_FILE:
+            fo = open("foo.txt", "wb")
+            fo.write("{}\n".format(this_log));
+            fo.close()
+        else:
+            print this_log
 
 def log_in_out(func):
     '''
