@@ -5,12 +5,17 @@ def log(event):
     '''
     Defines the default log behaviour for the server
     '''
+    timestamp = datetime.datetime.strftime(
+        datetime.datetime.now(),
+        '%Y-%m-%d %H:%M:%S:%f'
+    )
+    this_log = '[{}]  {}'.format(timestamp, event)
     if LOGGING_ENABLED:
-        timestamp = datetime.datetime.strftime(
-            datetime.datetime.now(),
-            '%Y-%m-%d %H:%M:%S:%f'
-        )
-        print '[{}]  {}'.format(timestamp, event)
+        fo = open(LOG_FILE, "a")
+        fo.write("{}\n".format(this_log))
+        fo.close()
+    if VERBOSE:
+        print this_log
 
 def log_in_out(func):
     '''

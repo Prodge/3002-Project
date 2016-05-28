@@ -1,12 +1,13 @@
-import socket
-import ssl
-import json
 from os.path import exists
 from os import makedirs
 
-from settings import *
+import socket
+import json
+import ssl
+
 from logger import *
 import database as db
+import settings
 import tasks
 
 @log_in_out
@@ -27,8 +28,9 @@ def init():
 
     # Sockets
     soc = socket.socket()
-    soc.bind(('', PORT))
+    soc.bind(('', int(PORT)))
     soc.listen(MAX_CONNECTIONS)
+    log("Listening on port: {}".format(PORT))
     ssl_soc = ssl.wrap_socket(
         soc,
         ssl_version = ssl.PROTOCOL_TLSv1,
@@ -43,7 +45,7 @@ def main():
     while True:
         conn, address = soc.accept()
         log('New connection from {}'.format(address))
-        json_data = conn.recv(MAX_BUFFER_SIZE)
+        json_data = conn.recv(settings.MAX_BUFFER_SIZE)
         log('Received Instruction: {}'.format(json_data))
 
         data = json.loads(json_data)
