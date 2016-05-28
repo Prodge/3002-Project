@@ -38,17 +38,14 @@ def decrypt_file(file_name, key):
     with open(file_name, 'wb') as fo:
         fo.write(dec)
 
-@log_in_out
 def get_key():
     return ''.join(
         random.choice(string.ascii_uppercase + string.digits + string.ascii_lowercase)
         for _ in range(32)
     )
 
-@log_in_out
 def hash_key(key):
     return pbkdf2_sha256.encrypt(key, rounds=100000, salt_size=16)
 
-@log_in_out
 def check_key(key, hashed_key):
     return pbkdf2_sha256.verify(key, hashed_key)
