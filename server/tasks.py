@@ -162,4 +162,4 @@ def task_fetch(data, conn):
         remove_file(filename)
 
 def task_get_key(data, conn):
-    send_struct(get_key())
+    send_struct(conn, get_key())

@@ -30,12 +30,13 @@ public class client{
     static int PORT = 3000;
     static String TRUST_NAME = "";
     static int TRUST_SIZE = 0;
+    static String KEY = "";
     public static LoggerOutput log = null;
 
     private static String generateHeader(List<String> value_list){
         HashMap<String, String> dictionary = new HashMap<String, String>();
         dictionary.put("Operation", value_list.get(0));
-        if (!value_list.get(0).equals("list")){
+        if (!value_list.get(0).equals("list") && !value_list.get(0).equals("get_key")){
             dictionary.put("filename", value_list.get(1));
             if (value_list.get(0).equals("add") || value_list.get(0).equals("cert")){
                 dictionary.put("file_size", value_list.get(2));
@@ -45,6 +46,9 @@ public class client{
                 if (!value_list.get(2).equals("")) dictionary.put("cot_name", value_list.get(2));
                 if (!value_list.get(3).equals("0")) dictionary.put("cot_size", value_list.get(3));
             }
+        }
+        if (!value_list.get(0).equals("cert") && !value_list.get(0).equals("vouch") && !value_list.get(0).equals("get_key")){
+            if (!KEY.equals("")) dictionary.put("key", KEY);
         }
         JSONObject obj = new JSONObject(dictionary);
         return (obj.toString());
@@ -121,8 +125,8 @@ public class client{
         if (!Files.isRegularFile(Paths.get(filename))) return ("File does not exits");
         sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
         cdoi.sendMessageToServer(generateHeader(
-                    Arrays.asList("add", parseFileName(filename), String.valueOf(new File(filename).length())))
-        );
+                    Arrays.asList("add", parseFileName(filename), String.valueOf(new File(filename).length()))
+        ));
         JSONObject response = parseHeader(cdoi.receiveMessageFromServer());
         if (extractStatusCode(response) != 200) displayErrorAndExit(null,extractMessage(response));
         cdoi.sendFileToServer(filename);
@@ -195,6 +199,22 @@ public class client{
         return (extractMessage(response));
     }
 
+    private static String getKey(){
+        String result = "";
+        sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
+        cdoi.sendMessageToServer(generateHeader(
+                    Arrays.asList("get_key")
+        ));
+        result = cdoi.receiveMessageFromServer();
+        cdoi.closeConnection();
+        return result;
+    }
+
+    private static void setKey(String key){
+        KEY = key;
+        SET_SUCCESS_MSG.add("Key set!");
+    }
+
     private static boolean validInteger(String num){
         try {
             Integer.parseInt(num);
@@ -210,7 +230,7 @@ public class client{
     }
 
     private static boolean parseArguments(String[] args){
-        List<String> string_args = Arrays.asList("-a", "-f", "-n", "-u", "-c", "-o");
+        List<String> string_args = Arrays.asList("-a", "-f", "-n", "-u", "-c", "-o", "-e");
         for (int i=0; i<args.length; i++){
             if (string_args.contains(args[i]) && i!=args.length-1 ){
                 if (args[i].equals("-c")){
@@ -224,7 +244,7 @@ public class client{
                 if (args[i+1].endsWith(":") || !args[i+1].contains(":")) return false;
                 String[] data = args[i+1].split(":");
                 if (!(validString(data[0]) && validInteger(data[1]))) return false;
-            }else if (args[i].equals("-l") || args[i].equals("--verbose")){
+            }else if (args[i].equals("-l") || args[i].equals("-k") || args[i].equals("--verbose")){
                 ARGS_PARAMS.add(args[i]);
                 continue;
             }else{
@@ -246,7 +266,7 @@ public class client{
             System.exit(0);
         }
 
-        String[] set_args = new String[] {"-c","-h","-n"};
+        String[] set_args = new String[] {"-c","-h","-n","-e"};
         for (String arg : set_args){
             int index = ARGS_PARAMS.indexOf(arg);
             if (index == -1) continue;
@@ -254,7 +274,8 @@ public class client{
                 String[] data = ARGS_PARAMS.get(index+1).split(":");
                 setHostAddress(data[0], Integer.parseInt(data[1]));
             }else if (arg.equals("-c")){ setLengthOfTrust(Integer.parseInt(ARGS_PARAMS.get(index+1)));
-            }else if (arg.equals("-n")){ setTrustName(ARGS_PARAMS.get(index+1));}
+            }else if (arg.equals("-n")){ setTrustName(ARGS_PARAMS.get(index+1));
+            }else if (arg.equals("-e")){ setKey(ARGS_PARAMS.get(index+1));}
         }
 
         if ((SET_SUCCESS_MSG.size()*2) == ARGS_PARAMS.size()){
@@ -298,6 +319,12 @@ public class client{
                     result = checkAuthenticity(ARGS_PARAMS.get(++i), ARGS_PARAMS.get(++i));
                     log.endLog();
                     System.out.println(result);
+                    break;
+                case "-k":
+                    log.startLog("getting private aes key from server");
+                    result = getKey();
+                    log.endLog();
+                    System.out.println("Your key is: " + result);
                     break;
             }
         }
