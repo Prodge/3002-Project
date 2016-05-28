@@ -38,6 +38,7 @@ def send_msg(conn, status_code, msg):
 @log_in_out
 def task_add(data, conn):
     filename, filesize = get_data(data, *['filename', 'file_size'])
+    assert '/' not in filename, "Invalid filename"
     send_msg(conn, 200, 'ready to receive')
     if not is_file_in_database(filename):
         add_file_cert_mapping(filename, '')
