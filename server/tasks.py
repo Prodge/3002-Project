@@ -38,6 +38,7 @@ def send_msg(conn, status_code, msg):
 @log_in_out
 def task_add(data, conn):
     filename, filesize = get_data(data, *['filename', 'file_size'])
+    assert '/' not in filename, "Invalid filename"
     send_msg(conn, 200, 'ready to receive')
     if not is_file_in_database(filename):
         add_file_cert_mapping(filename, '')
@@ -71,8 +72,8 @@ def task_list(data, conn):
 def task_cert(data, conn):
     filename, filesize = get_data(data, *['filename', 'file_size'])
     send_msg(conn, 200, 'ready to receive')
-    if file_exists(filename):
-        remove_file(filename)
+    assert not file_exists(filename), "A certificate with this name already exists"
+
     # Write socket to string buffer to test validity once complete
     cert_buffer = StringIO()
     write_file_from_socket(cert_buffer, filesize, conn)
@@ -86,6 +87,7 @@ def task_cert(data, conn):
         cert_buffer.close()
         return
     # Finally write file from string buffer
+
     cert_buffer.seek(0)
     f = open('{}/{}'.format(CERTS_FOLDER, filename), 'wb')
     f.write(cert_buffer.read())
@@ -102,14 +104,14 @@ def task_vouch(data, conn):
         update_file_cert_mapping(filename, certname)
     else:
         add_file_cert_mapping(filename, certname)
-    send_msg(conn, 200, 'ok')
+    send_msg(conn, 200, '{} now vouches for {}'.format(certname, filename))
 
 @log_in_out
 def task_fetch(data, conn):
     filename, = get_data(data, *['filename'])
     cot_size = data.get('cot_size', None)
     cot_name = data.get('cot_name', None)
-    assert file_exists(filename), "File does not exist"
+    assert file_exists(filename) and is_file_in_database(filename), "{} does not exist".format(filename)
 
     cots = get_all_cots(filename)
     log(cot_size)
