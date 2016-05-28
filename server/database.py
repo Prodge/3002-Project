@@ -25,24 +25,26 @@ def init(cursor):
     '''
     Create DB with table if it doesn't exist
     '''
-    try:
-        cursor.execute(
-            '''
-            SELECT COUNT(*)
-            FROM {}
-            '''.format(DB_TABLENAME_FILES)
-        )
-    except sqlite3.OperationalError as e: # Database is empty
-        log('Database not found/empty, Creating tables')
-        cursor.execute(
-            '''
-            CREATE TABLE {0}
-            (
-                filename char[{1}],
-                certname char[{1}]
+    for table in DB_TABLES:
+        try:
+            cursor.execute(
+                '''
+                SELECT COUNT(*)
+                FROM {}
+                '''.format(table)
             )
-            '''.format(DB_TABLENAME_FILES, MAX_FILENAME_LENGTH)
-        )
+        except sqlite3.OperationalError as e:
+            log('Table "{}" not found, Creating table'.format(table))
+            cursor.execute(
+                '''
+                CREATE TABLE {0}
+                (
+                    filename char[{1}],
+                    key_hash char[{1}]
+                )
+                '''.format(table, MAX_FILENAME_LENGTH)
+            )
+
 @require_db
 def query(cursor, query_string):
     '''
