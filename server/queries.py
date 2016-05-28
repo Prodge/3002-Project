@@ -3,6 +3,7 @@ from os import remove, makedirs, listdir
 
 from settings import *
 from database import query
+from encryption import check_key
 
 '''
     Database Operations
@@ -62,6 +63,17 @@ def update_file_cert_mapping(filename, new_certname):
         '''.format(DB_TABLENAME_FILES, new_certname, filename)
     )
 
+def add_filesize(filename, filesize):
+    query(
+        '''
+        insert into {}
+        values ("{}", "{}")
+        '''.format(DB_TABLENAME_SIZES, filename, filesize)
+    )
+
+def get_filesize(filename):
+    return query('select * from {} where filename="{}"'.format(DB_TABLENAME_SIZES, filename))[0][1]
+
 def get_file_cert_mappings():
     return query('select * from {}'.format(DB_TABLENAME_FILES))
 
@@ -74,11 +86,14 @@ def get_linked_certs(filename):
 def get_file_key_hash(filename):
     return query('select * from {} where filename="{}"'.format(DB_TABLENAME_KEYS, filename))[0][1]
 
-def get_key_hash_files(key_hash):
-    return map(lambda row: row[0], query('select * from {} where key_hash="{}"'.format(DB_TABLENAME_KEYS, key_hash)))
+def get_protected_files_with_keys():
+    return query('select * from {}'.format(DB_TABLENAME_KEYS))
 
-def get_protected_files(key_hash):
-    return map(lambda row: row[0], query('select * from {}'.format(DB_TABLENAME_KEYS)))
+def get_protected_files():
+    return map(lambda row: row[0], get_protected_files_with_keys())
+
+def get_key_hash_files(key):
+    return [key_file[0] for key_file in get_protected_files_with_keys() if check_key(key, key_file[1])]
 
 '''
     File Operations
