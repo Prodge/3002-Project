@@ -1,6 +1,6 @@
 from bcrypt import hashpw, checkpw, gensalt
 from Crypto.Cipher import AES
-
+from Crypto import Random
 import random
 import string
 
