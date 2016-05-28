@@ -4,6 +4,8 @@ from Crypto import Random
 import random
 import string
 
+from settings import *
+
 def pad(s):
     return s + b"\0" * (AES.block_size - len(s) % AES.block_size)
 
@@ -40,7 +42,7 @@ def get_key():
     )
 
 def hash_key(key):
-    hashpw('testing', gensalt())
+    return hashpw('testing', gensalt())
 
 def check_key(key, hashed_key):
-    checkpw(key, hashed_key)
+    return checkpw(key, hashed_key)
