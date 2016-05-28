@@ -1,8 +1,10 @@
-import socket
-import ssl
-import json
+from optparse import OptionParser
 from os.path import exists
 from os import makedirs
+
+import socket
+import json
+import ssl
 
 from settings import *
 from logger import *
