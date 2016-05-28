@@ -122,7 +122,7 @@ public class client{
     }
 
     private static String addOrReplaceFile(String filename){
-        if (!Files.isRegularFile(Paths.get(filename))) return ("File does not exits");
+        if (!Files.isRegularFile(Paths.get(filename))) return ("File does not exist");
         sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
         cdoi.sendMessageToServer(generateHeader(
                     Arrays.asList("add", parseFileName(filename), String.valueOf(new File(filename).length()))
@@ -177,7 +177,7 @@ public class client{
     }
 
     private static String uploadCertificate(String certificate){
-        if (!Files.isRegularFile(Paths.get(certificate))) return ("Certificate does not exits");
+        if (!Files.isRegularFile(Paths.get(certificate))) return ("Certificate does not exist");
         sslconnection cdoi = new sslconnection(HOSTNAME, PORT);
         cdoi.sendMessageToServer(generateHeader(
                     Arrays.asList("cert", parseFileName(certificate), String.valueOf(new File(certificate).length())))
