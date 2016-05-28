@@ -110,7 +110,7 @@ def task_fetch(data, conn):
     filename, = get_data(data, *['filename'])
     cot_size = data.get('cot_size', None)
     cot_name = data.get('cot_name', None)
-    assert file_exists(filename), "{} does not exist".format(filename)
+    assert file_exists(filename) and is_file_in_database(filename), "{} does not exist".format(filename)
 
     cots = get_all_cots(filename)
     log(cot_size)
