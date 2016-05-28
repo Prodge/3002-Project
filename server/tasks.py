@@ -103,14 +103,14 @@ def task_vouch(data, conn):
         update_file_cert_mapping(filename, certname)
     else:
         add_file_cert_mapping(filename, certname)
-    send_msg(conn, 200, 'ok')
+    send_msg(conn, 200, '{} now vouches for {}'.format(certname, filename))
 
 @log_in_out
 def task_fetch(data, conn):
     filename, = get_data(data, *['filename'])
     cot_size = data.get('cot_size', None)
     cot_name = data.get('cot_name', None)
-    assert file_exists(filename), "File does not exist"
+    assert file_exists(filename), "{} does not exist".format(filename)
 
     cots = get_all_cots(filename)
     log(cot_size)
