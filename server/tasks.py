@@ -71,8 +71,8 @@ def task_list(data, conn):
 def task_cert(data, conn):
     filename, filesize = get_data(data, *['filename', 'file_size'])
     send_msg(conn, 200, 'ready to receive')
-    if file_exists(filename):
-        remove_file(filename)
+    assert not file_exists(filename), "A certificate with this name already exists"
+
     # Write socket to string buffer to test validity once complete
     cert_buffer = StringIO()
     write_file_from_socket(cert_buffer, filesize, conn)
@@ -86,6 +86,7 @@ def task_cert(data, conn):
         cert_buffer.close()
         return
     # Finally write file from string buffer
+
     cert_buffer.seek(0)
     f = open('{}/{}'.format(CERTS_FOLDER, filename), 'wb')
     f.write(cert_buffer.read())
