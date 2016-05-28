@@ -13,7 +13,8 @@ DB_TABLENAME_FILES = 'file_cert_map'
 
 MAX_FILENAME_LENGTH = 200
 
-LOGGING_ENABLED = True
+LOGGING_ENABLED = False
+LOG_FILE = 'log'
 
 FILES_FOLDER = 'files'
 CERTS_FOLDER = 'certs'
