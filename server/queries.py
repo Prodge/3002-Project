@@ -58,7 +58,7 @@ def update_file_cert_mapping(filename, new_certname):
     query(
         '''
         update {}
-        set certname = "{}"
+        set attr = "{}"
         where filename = "{}"
         '''.format(DB_TABLENAME_FILES, new_certname, filename)
     )
