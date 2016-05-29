@@ -21,6 +21,8 @@ public class client{
         +"    -u CERTIFICATE              upload a certificate to the oldtrusty server\n"
         +"    -v FILENAME CERTIFICATE     vouch for the authenticity of an existing file in the\n"
         +"                                oldtrusty server using the indicated certificate\n"
+        +"    -k                          server will return a unique secret key for storing and recieving files\n"
+        +"    -e KEY                      use the secret key given by the server to store and recieve files and list files linked to the key\n"
         +"    --verbose                   debugs the operations performed\n"
         +"    --help                      shows the this usage document";
 
