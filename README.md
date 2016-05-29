@@ -6,6 +6,7 @@
 ### Server
 1. Install dependencies needed to run the server:
 ```
+cd server/
 sudo apt-get install python2.7 python-dev
 sudo pip install -r requirements.txt
 ```
@@ -16,9 +17,14 @@ python2 server.py [ARGS and PARAMS]
 
 ### Client
 1. Compile the java files:
-   `make`
+```
+cd client/
+make
+```
 2. Run the client (use --help to get the usage):
-   `java client [ARG and PARMS]`
+```
+java client [ARG and PARMS]
+```
 
 ## Instructions to create a circle of trust
 - In the path "client/test_certs" there are certificates which can be used to create a circle of trust.
