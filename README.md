@@ -47,13 +47,13 @@ example (list):
 - OpenSSL for python
   - sudo pip install pyOpenSSL
 
-- bcrypt for python
-  - sudo pip install py-bcrypt
-
 - pycrypto for python
   - sudo pip install pycrypto
 
 - python-dev package
   - sudo apt-get install python-dev
+
+- passlib for python
+  - sudo pip install passlib
 
 - Python 2.7

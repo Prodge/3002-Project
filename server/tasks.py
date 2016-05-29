@@ -48,16 +48,20 @@ def task_add(data, conn):
     if is_file_key_in_database(filename):
         assert key, "This file requires a key to update"
         assert check_key(key, get_file_key_hash(filename)), "Invalid key"
-    if file_exists(filename):
+        log('Removing old encrypted file')
+        remove_file(filename + ENCRYPTED_FILE_POSTFIX)
+    elif file_exists(filename):
         remove_file(filename)
     f = open(filepath, 'wb')
     write_file_from_socket(f, filesize, conn)
     f.close()
-
+    add_filesize(filename, filesize)
     if key:
         encrypt_file(filepath, key)
+        log('Removing unencrypted file')
         remove_file(filename)
         if not is_file_key_in_database(filename):
+            log('Storing a hash for this new file')
             add_file_key_mapping(filename, hash_key(key))
 
 @log_in_out
@@ -65,24 +69,26 @@ def task_list(data, conn):
     file_list = []
     key = data.get('key', None)
     cert_file_mappings = list(get_file_cert_mappings())
+    hidden_files = get_protected_files()
     if key:
-        assert check_key(key, get_file_key_hash(filename)), "Invalid key"
-        hidden_files = get_protected_files() - get_key_hash_files(hash_key(key))
-        cert_file_mappings = filter(lambda f: f[0] not in hidden_files, cert_file_mappings)
+        log('Received key, looking for additional protected files to list')
+        hidden_files = [f for f in get_protected_files() if f not in get_key_hash_files(key)]
+    cert_file_mappings = filter(lambda f: f[0] not in hidden_files, cert_file_mappings)
 
     for mapping in cert_file_mappings:
         file_found = False
+        filename = mapping[0]
         for f in file_list:
-            if f['filename'] == mapping[0]:
+            if f['filename'] == filename:
                 file_found = True
                 f['certname'].append(mapping[1])
         if not file_found:
             file_list.append(
                 {
-                    'filename': mapping[0],
+                    'filename': filename,
                     'certname': [mapping[1]],
-                    'cot_size': len(get_largest_cot(mapping[0])),
-                    'filesize': getsize('{}/{}'.format(FILES_FOLDER, mapping[0])),
+                    'cot_size': len(get_largest_cot(filename)),
+                    'filesize': get_filesize(filename),
                 }
             )
     send_struct(conn, file_list)
@@ -120,8 +126,10 @@ def task_vouch(data, conn):
     assert cert_exists(certname), "Certificate does not exist"
     assert not is_file_cert_mapping_in_database(filename, certname), "This certificate already vouches for this file"
     if len(get_file_cert_mapping(filename)) == 1 and get_file_cert_mapping(filename)[0][1] == '' :
+        log('Vouching for {} with no previous vouch'.format(filename))
         update_file_cert_mapping(filename, certname)
     else:
+        log('Adding an additional vouch for {}'.format(filename))
         add_file_cert_mapping(filename, certname)
     send_msg(conn, 200, '{} now vouches for {}'.format(certname, filename))
 
@@ -137,16 +145,20 @@ def task_fetch(data, conn):
     cots = get_all_cots(filename)
     log(cot_size)
     if cot_size:
+        log('Checking COT size')
         cot_size = int(cot_size)
         cots = filter(lambda cot: len(cot) >= cot_size, cots)
         assert len(cots), "Circle of trust did not meet required length"
     if cot_name:
+        log('Checking {} is in COT'.format(cot_name))
         assert cot_name in [cert['common_name'] for cot in cots for cert in cot], "Circle of trust did not contain the required name"
 
     if key:
-        assert is_file_key_mapping_in_database(filename), "This file does not need a key to fetch"
+        log('Validating key')
+        assert is_file_key_in_database(filename), "This file does not need a key to fetch"
         assert check_key(key, get_file_key_hash(filename)), "Invalid key"
-        decrypt_file(filename)
+        log('Decrypting file for transfer')
+        decrypt_file(filepath, key)
 
     filesize = getsize('{}/{}'.format(FILES_FOLDER, filename))
     send_struct(conn,{'status_code': 200, 'file_size': filesize})
@@ -159,6 +171,7 @@ def task_fetch(data, conn):
     f.close()
 
     if key:
+        log('Removing unencrypted file')
         remove_file(filename)
 
 def task_get_key(data, conn):

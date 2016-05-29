@@ -40,7 +40,7 @@ def init(cursor):
                 CREATE TABLE {0}
                 (
                     filename char[{1}],
-                    key_hash char[{1}]
+                    attr char[{1}]
                 )
                 '''.format(table, MAX_FILENAME_LENGTH)
             )

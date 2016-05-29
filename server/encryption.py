@@ -1,37 +1,42 @@
-from bcrypt import hashpw, checkpw, gensalt
+from passlib.hash import pbkdf2_sha256
 from Crypto.Cipher import AES
 from Crypto import Random
 import random
 import string
 
-def pad(s):
+from settings import *
+from logger import log_in_out
+
+def pad_block(s):
     return s + b"\0" * (AES.block_size - len(s) % AES.block_size)
 
-def encrypt(message, key, key_size=256):
-    message = pad(message)
+def encrypt_block(block, key, key_size=256):
+    block = pad_block(block)
     iv = Random.new().read(AES.block_size)
     cipher = AES.new(key, AES.MODE_CBC, iv)
-    return iv + cipher.encrypt(message)
+    return iv + cipher.encrypt(block)
 
-def decrypt(ciphertext, key):
+def decrypt_block(ciphertext, key):
     iv = ciphertext[:AES.block_size]
     cipher = AES.new(key, AES.MODE_CBC, iv)
     plaintext = cipher.decrypt(ciphertext[AES.block_size:])
     return plaintext.rstrip(b"\0")
 
-def encrypt_file(file_name, key):
-    with open(file_name, 'rb') as fo:
-        plaintext = fo.read()
-    enc = encrypt(plaintext, key)
-    with open(file_name + ENCRYPTED_FILE_POSTFIX, 'wb') as fo:
-        fo.write(enc)
+@log_in_out
+def encrypt_file(filename, key):
+    with open(filename, 'rb') as f:
+        plaintext = f.read()
+    encrypted_block = encrypt_block(plaintext, key)
+    with open(filename + ENCRYPTED_FILE_POSTFIX, 'wb') as f:
+        f.write(encrypted_block)
 
-def decrypt_file(file_name, key):
-    with open(file_name + ENCRYPTED_FILE_POSTFIX, 'rb') as fo:
-        ciphertext = fo.read()
-    dec = decrypt(ciphertext, key)
-    with open(file_name, 'wb') as fo:
-        fo.write(dec)
+@log_in_out
+def decrypt_file(filename, key):
+    with open(filename + ENCRYPTED_FILE_POSTFIX, 'rb') as f:
+        encrypted_content = f.read()
+    dec = decrypt_block(encrypted_content, key)
+    with open(filename, 'wb') as f:
+        f.write(dec)
 
 def get_key():
     return ''.join(
@@ -40,7 +45,7 @@ def get_key():
     )
 
 def hash_key(key):
-    hashpw('testing', gensalt())
+    return pbkdf2_sha256.encrypt(key, rounds=100000, salt_size=16)
 
 def check_key(key, hashed_key):
-    checkpw(key, hashed_key)
+    return pbkdf2_sha256.verify(key, hashed_key)
