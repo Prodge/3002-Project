@@ -5,8 +5,10 @@
 ## Instructions to deploy client and server programs
 ### Server
 1. Install dependencies needed to run the server:
-   ```sudo apt-get install python2.7 python-dev```
-   ```sudo pip install -r requirements.txt```
+```
+sudo apt-get install python2.7 python-dev
+sudo pip install -r requirements.txt
+```
 2. Run the server (use --help to get the usage):
    `python2 server.py [ARGS and PARAMS]`
 
