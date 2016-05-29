@@ -42,7 +42,6 @@ def task_add(data, conn):
     key = data.get('key', None)
     filepath = '{}/{}'.format(FILES_FOLDER, filename)
     assert '/' not in filename, "Invalid filename"
-    send_msg(conn, 200, 'ready to receive')
     if not is_file_in_database(filename):
         add_file_cert_mapping(filename, '')
     if is_file_key_in_database(filename):
@@ -52,6 +51,7 @@ def task_add(data, conn):
         remove_file(filename + ENCRYPTED_FILE_POSTFIX)
     elif file_exists(filename):
         remove_file(filename)
+    send_msg(conn, 200, 'ready to receive')
     f = open(filepath, 'wb')
     write_file_from_socket(f, filesize, conn)
     f.close()
@@ -96,8 +96,8 @@ def task_list(data, conn):
 @log_in_out
 def task_cert(data, conn):
     filename, filesize = get_data(data, *['filename', 'file_size'])
+    assert not cert_exists(filename), "A certificate with this name already exists"
     send_msg(conn, 200, 'ready to receive')
-    assert not file_exists(filename), "A certificate with this name already exists"
 
     # Write socket to string buffer to test validity once complete
     cert_buffer = StringIO()
@@ -112,12 +112,12 @@ def task_cert(data, conn):
         cert_buffer.close()
         return
     # Finally write file from string buffer
-
     cert_buffer.seek(0)
     f = open('{}/{}'.format(CERTS_FOLDER, filename), 'wb')
     f.write(cert_buffer.read())
     f.close()
     cert_buffer.close()
+    send_msg(conn, 200, 'Certificate added successfully')
 
 @log_in_out
 def task_vouch(data, conn):

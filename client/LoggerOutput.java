@@ -42,7 +42,7 @@ public class LoggerOutput{
         if (method_name.equals("")){
             result = String.format("ERROR: %s", msg);
         }else{
-            result = String.format("ERROR: Method %s %s",method_name, msg);
+            result = String.format("ERROR: in method %s %s",method_name, msg);
         }
         System.err.println(result + "\nClient terminated");
     }
