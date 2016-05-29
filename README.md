@@ -7,7 +7,7 @@
 1. Install dependencies needed to run the server:
 ```
 cd server/
-sudo apt-get install python2.7 python-dev
+sudo apt-get install python2.7 python-dev libssl-dev libffi-dev 
 sudo pip install -r requirements.txt
 ```
 2. Run the server (use --help to get the usage):
