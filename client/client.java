@@ -93,7 +93,7 @@ public class client{
     }
 
     private static void displayErrorAndExit(Exception e, String msg){
-        log.error(Thread.currentThread().getStackTrace()[2].getMethodName(), msg.equals("") ? e.toString() : "Server threw the following error:\n" + msg);
+        log.error(Thread.currentThread().getStackTrace()[2].getMethodName(), msg.equals("") ? e.toString() : "the server threw the following error:\n   " + msg);
         System.exit(0);
     }
 
@@ -185,8 +185,10 @@ public class client{
         JSONObject response = parseHeader(cdoi.receiveMessageFromServer());
         if (extractStatusCode(response) != 200) displayErrorAndExit(null,extractMessage(response));
         cdoi.sendFileToServer(certificate);
+        response = parseHeader(cdoi.receiveMessageFromServer());
+        if (extractStatusCode(response) != 200) displayErrorAndExit(null,extractMessage(response));
         cdoi.closeConnection();
-        return ("Certificate added successfully");
+        return (extractMessage(response));
     }
 
     private static String checkAuthenticity(String filename, String certificate){

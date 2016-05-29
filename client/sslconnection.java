@@ -21,8 +21,8 @@ public class sslconnection{
         log.startLogMethod();
         try {
             //set trust store
-            System.setProperty("javax.net.ssl.trustStore", this.trustStorefile);
-            System.setProperty("javax.net.ssl.trustStorePassword", this.password);
+            if (System.getProperty("javax.net.ssl.trustStore") == null) System.setProperty("javax.net.ssl.trustStore", this.trustStorefile);
+            if (System.getProperty("javax.net.ssl.trustStorePassword") == null) System.setProperty("javax.net.ssl.trustStorePassword", this.password);
             //System.setProperty("javax.net.debug", "all"); //debugs
 
             //create connection
