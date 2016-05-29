@@ -1,5 +1,26 @@
 # 3002-Project
 
+**A Project by Tim Metcalf and Don Wimodya Randula Athukorala**
+
+## Instructions to deploy client and server programs
+### Server
+1. Install dependencies needed to run the server:
+   `sudo pip install -r requirements.txt`
+2. Run the server (use --help to get the usage):
+   `python2 server.py [ARGS and PARAMS]`
+
+### Client
+1. Compile the java files:
+   `make`
+2. Run the client (use --help to get the usage):
+   `java client [ARG and PARMS]`
+
+## Instructions to create a circle of trust
+- In the path "client/test_certs" there are certificates which can be used to create a circle of trust.
+- The 4 certificates starting with **tim** creates a circle of trust of length 4.
+- The 8 certificates starting with **wimo** cerates a circle of trust of length 8.
+
+## Client command line options which are needed to be implemented
 | Option | Description |
 | ------ | ----------- |
 | -a filename | add or replace a file on the oldtrusty server
@@ -10,7 +31,6 @@
 | -n name | require a circle of trust to involve the named person (i.e. their certificate)
 | -u certificate | upload a certificate to the oldtrusty server
 | -v filename certificate | vouch for the authenticity of an existing file in the oldtrusty server using the indicated certificate
-
 
 ## Header layout
 Header is a JSON encoded dictionary.
