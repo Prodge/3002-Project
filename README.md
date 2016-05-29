@@ -10,7 +10,9 @@ sudo apt-get install python2.7 python-dev
 sudo pip install -r requirements.txt
 ```
 2. Run the server (use --help to get the usage):
-   `python2 server.py [ARGS and PARAMS]`
+```
+python2 server.py [ARGS and PARAMS]
+```
 
 ### Client
 1. Compile the java files:
