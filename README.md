@@ -5,7 +5,8 @@
 ## Instructions to deploy client and server programs
 ### Server
 1. Install dependencies needed to run the server:
-   `sudo pip install -r requirements.txt`
+   ```sudo apt-get install python2.7 python-dev```
+   ```sudo pip install -r requirements.txt```
 2. Run the server (use --help to get the usage):
    `python2 server.py [ARGS and PARAMS]`
 
@@ -64,7 +65,7 @@ example (list):
 - If a COT size is specified, can't fetch a file unless it is of that COT
 - If a COT name is specified, can't fetch a file unless the COT contains a cert of that name
 
-## Dependencies
+## Server Dependencies
 - OpenSSL for python
   - sudo pip install pyOpenSSL
 
