@@ -174,5 +174,6 @@ def task_fetch(data, conn):
         log('Removing unencrypted file')
         remove_file(filename)
 
+@log_in_out
 def task_get_key(data, conn):
     send_struct(conn, get_key())
