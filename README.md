@@ -38,6 +38,7 @@ example (list):
 - _Italics/bold_ indicate the key is optional
 
 - "key" (-k) will return a unique secure key to use for storing and retrieving files
+- "encrypt" (-e [KEY]) will use the key to add encrypted files, recieve encrypted files and list your encrypted files on the server and other unecrypted files
 
 ## Circle of trust spec
 - If a COT size is specified, can't fetch a file unless it is of that COT
