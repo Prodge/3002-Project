@@ -1,7 +1,5 @@
 # 3002-Project
 
-**A Project by Tim Metcalf and Don Wimodya Randula Athukorala**
-
 ## Instructions to deploy client and server programs
 ### Server
 1. Install dependencies needed to run the server:
